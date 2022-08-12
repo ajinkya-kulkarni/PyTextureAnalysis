@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,17 +30,23 @@ Testing_Mode = False
 
 ########################################################################
 
-filename = 'Test.tif'
+filename = 'CHANGE_filename'
 
 ########################################################################
 
-heatmap_averaging_windows = 50 # Number of windows desired to calculate the intensity heatmap
+heatmap_averaging_windows = CHANGE_heatmap_averaging_windows
+
+# Number of windows desired to calculate the intensity heatmap
 
 ########################################################################
 
-image_filter_sigma = 1 # Locally filters the image using a gaussian filter. High sigma is more filtering
+image_filter_sigma = CHANGE_image_filter_sigma 
 
-local_window_size = 2 # Size of local window to average out the gradients of the image. Large size is large ROI
+# Locally filters the image using a gaussian filter. High sigma is more filtering
+
+local_window_size = CHANGE_local_window_size
+
+# Size of local window to average out the gradients of the image. Large size is large ROI
 
 ########################################################################
 
@@ -538,10 +539,4 @@ size = len(fname)
 fname = fname[:size - 4] + '.txt'
 
 np.savetxt(fname, results_array, fmt = '%0.3f')
-
-
-# In[ ]:
-
-
-
 
