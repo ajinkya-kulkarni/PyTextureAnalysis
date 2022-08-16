@@ -1,3 +1,12 @@
 First steps towards creating a python based package to calculate orientation coherance and energy of fibrous structures in biomedical images.
 This package is based on calculating the structure tensor of the image, followed by solving the EigenProblem at each pixel of the image.
 One can simply run the jupyter notebook and try it out!
+
+https://lab.compute.dtu.dk/QIM/tutorials/structuretensor
+
+https://iopscience.iop.org/article/10.1088/1757-899X/942/1/012037/pdf
+
+https://zenodo.org/record/3877522
+
+Quantifying effects of manufacturing methods on fiber orientation in unidirectional composites using structure tensor analysis
+
