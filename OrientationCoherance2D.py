@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,48 +23,16 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 # In[2]:
 
 
-# get_ipython().run_line_magic('config', "InlineBackend.figure_format ='retina'")
-
 plt.rcParams.update({'font.size': 12})
 
+
+# ### Read Image
 
 # In[3]:
 
 
 Testing_Mode = False
 
-########################################################################
-
-filename = 'CHANGE_filename'
-
-########################################################################
-
-heatmap_averaging_windows = CHANGE_heatmap_averaging_windows
-
-# Number of windows desired to calculate the intensity heatmap
-
-########################################################################
-
-image_filter_sigma = CHANGE_image_filter_sigma 
-
-# Locally filters the image using a gaussian filter. High sigma is more filtering
-
-local_window_size = CHANGE_local_window_size
-
-# Size of local window to average out the gradients of the image. Large size is large ROI
-
-########################################################################
-
-Min_Coherance, Min_Orientation = 1e-2, 1e-2
-
-########################################################################
-
-spacing = 30 # Spacing between plotting the orientation vectors
-
-scale = 50 # Length of each vector for plotting
-
-
-# ### Read Image
 
 # In[4]:
 
@@ -86,18 +59,34 @@ def Test_Image():
 
 if Testing_Mode == False:
     
-    filename_image = filename
+    filename = 'CHANGE_filename'
     
-    raw_image = skimage.io.imread(filename_image).astype('float32')
+    raw_image = skimage.io.imread(filename).astype('float32')
 
 if Testing_Mode == True:
 
     raw_image = Test_Image()
 
 
+# In[6]:
+
+
+image_filter_sigma = CHANGE_image_filter_sigma
+
+local_window_size = CHANGE_local_window_size
+
+threshold_value = max(int(0.5 * np.median(raw_image)), 2)
+
+########################################################################
+
+spacing = 30 # Spacing between plotting the orientation vectors
+
+scale = 50 # Length of each vector for plotting
+
+
 # ### Create Image of same dimensions in X and Y
 
-# In[6]:
+# In[7]:
 
 
 def make_image_same_shape(image):
@@ -111,10 +100,12 @@ def make_image_same_shape(image):
 
 # ### Create HeatMap
 
-# In[7]:
+# In[8]:
 
 
 def make_HeatMap(input_image, number_heatmap_windows):
+    
+    number_heatmap_windows = 20
 
     # Define the local ROI
 
@@ -136,32 +127,27 @@ def make_HeatMap(input_image, number_heatmap_windows):
     return heatmap_image
 
 
-# ### Make 2D Structure Tensor from Image
+# ### Create and solve structure tensor
 
-# In[8]:
+# In[9]:
 
 
 def make_StructureTensor2D(input_image, image_filter_sigma, local_window_size):
 
     ### Calculate image gradients using Sobel or Gaussian filters
-    
-    #########################################################################################################
-
-#     filtered_image = skimage.filters.gaussian(input_image, sigma = image_filter_sigma, 
-#                                               mode = 'nearest')
-
-#     image_gradient_x = scipy.ndimage.sobel(filtered_image, axis = 0, mode = 'nearest')
-
-#     image_gradient_y = scipy.ndimage.sobel(filtered_image, axis = 1, mode = 'nearest')
 
     #########################################################################################################
     
-    image_gradient_x = scipy.ndimage.gaussian_filter(raw_image, image_filter_sigma, 
-                                                     mode = 'nearest', order = [1, 0])
+    ### Filter the image a bit
 
-    image_gradient_y = scipy.ndimage.gaussian_filter(raw_image, image_filter_sigma, 
-                                                     mode = 'nearest', order = [0, 1])
+    filtered_image = skimage.filters.gaussian(input_image, sigma = image_filter_sigma, mode = 'nearest')
     
+    ### Calculate image gradients in x and y directions
+
+    image_gradient_x = scipy.ndimage.sobel(filtered_image, axis = 0, mode = 'nearest')
+
+    image_gradient_y = scipy.ndimage.sobel(filtered_image, axis = 1, mode = 'nearest')
+
     #########################################################################################################
 
     ### Calculate Jxx, Jyy and Jxy
@@ -174,7 +160,7 @@ def make_StructureTensor2D(input_image, image_filter_sigma, local_window_size):
 
     Jxy = scipy.ndimage.gaussian_filter(image_gradient_x * image_gradient_y, 
                                         local_window_size, mode = 'nearest')
-    
+
     #########################################################################################################
 
     ### Make Structure Tensor
@@ -183,109 +169,57 @@ def make_StructureTensor2D(input_image, image_filter_sigma, local_window_size):
                                      [Jxy, Jyy]])
 
     Structure_Tensor = np.moveaxis(Raw_Structure_Tensor, [0, 1], [2, 3]) # For solving EigenProblem
-
-    #########################################################################################################
     
-    ### Calculate Energy
-
-    Energy = np.trace(Raw_Structure_Tensor)
-
-    #########################################################################################################
-    
-    return Structure_Tensor, Jxx, Jxy, Jyy, Energy
-
-
-# In[9]:
-
-
-def solve_EigenProblem(Structure_Tensor):
-    
-    ## Solve EigenValue problem
+#     Energy = np.trace(Raw_Structure_Tensor)
 
     EigenValues, EigenVectors = np.linalg.eigh(Structure_Tensor) # eigh because matrix is symmetric
-
-    #########################################################################################################
-
-    return EigenValues, EigenVectors
+    
+    return Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy
 
 
-# ### Calculate Orientation vector field, Orientation and Coherance
+# ### Create and solve for Orientation and Coherance
 
 # In[10]:
 
 
-def make_Coherance_Orientation(input_image, EigenValues, EigenVectors, 
-                               Structure_Tensor, Jxx, Jxy, Jyy, 
-                               Min_Coherance, Min_Orientation):
+def make_Coherance_Orientation(input_image, EigenValues, EigenVectors, Structure_Tensor, Jxx, Jxy, Jyy):
+    
+    vx = EigenVectors[..., 0][:, :, 0]
+    vx[raw_image < threshold_value] = np.nan
 
-    Coherance_Array = np.zeros(input_image.shape)
-
-    vx = np.zeros(input_image.shape)
-
-    vy = np.zeros(input_image.shape)
-
-    ### Calculate Coherance and Orientation vector field
-
-    Coherance_Array = np.zeros(input_image.shape)
-
+    vy = EigenVectors[..., 0][:, :, 1]
+    vy[raw_image < threshold_value] = np.nan
+    
     #############################################
+    
+    Orientation = 0.5 * ( cv.phase( (Jyy - Jxx), (2 * Jxy), angleInDegrees = True) )
 
-    for j in range(input_image.shape[1]):
+    Orientation[raw_image < threshold_value] = np.nan
+    
+    #############################################
+    
+    # Smallest_Normalized_Eigenvalues = EigenValues[..., 0] / (np.trace(Structure_Tensor, axis1 = 2, axis2 = 3))
 
-        for i in range(input_image.shape[0]):
+    # Largest_Normalized_Eigenvalues = EigenValues[..., 1] / (np.trace(Structure_Tensor, axis1 = 2, axis2 = 3))
+        
+    Coherance = np.zeros(input_image.shape)
 
-            #############################################
+    for j in range(raw_image.shape[1]):
 
-            ### Calculate vector field of orientations
+        for i in range(raw_image.shape[0]):
 
-            vx[i, j] = EigenVectors[i, j][:, 0][0]
-
-            vy[i, j] = EigenVectors[i, j][:, 0][1]
-
-            #############################################
-            
-            ### Calculate Coherance
-
-            if ( (EigenValues[i, j].sum()) > 0):
+            if ( ( (EigenValues[i, j].sum()) > 0) and (raw_image[i, j] > threshold_value)):
 
                 Smallest_Normalized_Eigenvalues = EigenValues[i, j][0] / np.trace(Structure_Tensor[i, j])
 
                 Largest_Normalized_Eigenvalues = EigenValues[i, j][1] / np.trace(Structure_Tensor[i, j])
 
-                Coherance_Array[i, j] = np.abs((Largest_Normalized_Eigenvalues - 
-                                                Smallest_Normalized_Eigenvalues) /
-                                               (Smallest_Normalized_Eigenvalues + 
-                                                Largest_Normalized_Eigenvalues))
+                Coherance[i, j] = np.abs((Largest_Normalized_Eigenvalues - Smallest_Normalized_Eigenvalues) /
+                                         (Smallest_Normalized_Eigenvalues + Largest_Normalized_Eigenvalues))
 
             else:
 
-                Coherance_Array[i, j] = 0
-
-    ### Normalize Coherance between 0 and 1
-
-    Coherance = cv.normalize(Coherance_Array, None, 
-                             alpha = Min_Coherance, beta = 1, 
-                             norm_type = cv.NORM_MINMAX, dtype = cv.CV_32F)
-
-    #############################################
-    
-    ### Calculate Orientation
-
-    Raw_Orientation_Array = 0.5 * ( cv.phase( (Jyy - Jxx), (2 * Jxy), angleInDegrees = True) )
-
-    #############################################
-    
-    ### Normalize Orientation between 0 and 180
-
-    Orientation = cv.normalize(Raw_Orientation_Array, None, 
-                               alpha = Min_Orientation, beta = 180, 
-                               norm_type = cv.NORM_MINMAX, dtype = cv.CV_32F)
-    
-#     ### Subtract 90 degrees when Orientation > 90 for easy visualization
-
-#     Orientation[np.where(Orientation > 90)] -= 90
-    
-    #############################################
+                Coherance[i, j] = np.nan
     
     return Coherance, Orientation, vx, vy
 
@@ -308,42 +242,30 @@ def discrete_cmap(N, base_cmap):
     return base.from_list(cmap_name, color_list, N)
 
 
-# ### Start the procedure
+# ### Start the analysis
 
 # In[12]:
 
 
-heatmap_image = make_HeatMap(raw_image, heatmap_averaging_windows)
+Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_StructureTensor2D(raw_image, 
+                                                                                    image_filter_sigma, 
+                                                                                    local_window_size)
 
-
-# In[13]:
-
-
-# Make Structure_Tensor
-
-Structure_Tensor, Jxx, Jxy, Jyy, Energy = make_StructureTensor2D(raw_image, 
-                                                                 image_filter_sigma, 
-                                                                 local_window_size)
-
-# Solve the EigenProblem
-
-EigenValues, EigenVectors = solve_EigenProblem(Structure_Tensor)
 
 # Calculate Orientation, Coherance
 
 Coherance, Orientation, vx, vy = make_Coherance_Orientation(raw_image, 
                                                             EigenValues, EigenVectors,
                                                             Structure_Tensor, 
-                                                            Jxx, Jxy, Jyy,
-                                                            Min_Coherance, Min_Orientation)
+                                                            Jxx, Jxy, Jyy)
 
 
-# ### Plot everything together
+# ### Plot everything
 
-# In[14]:
+# In[13]:
 
 
-fig, ax = plt.subplots(1, 5, figsize = (50, 15), sharex = True, sharey = True)
+fig, ax = plt.subplots(1, 4, figsize = (45, 15), sharex = True, sharey = True)
 
 ax[0].imshow(raw_image, cmap = 'binary_r')
 ax[0].set_title('Image', pad = 20, fontsize = 40)
@@ -356,75 +278,48 @@ cax0.remove()
 
 ########################################################################
 
-# im1 = ax[1].imshow(plt.cm.gray(raw_image / raw_image.max()) * 
-#                    plt.cm.RdYlBu_r(heatmap_image / heatmap_image.max()), 
-#                    cmap = 'RdYlBu_r', vmin = 0, vmax = 1)
-
-im1 = ax[1].imshow(heatmap_image / heatmap_image.max(), 
-                   cmap = 'RdYlBu_r', vmin = 0, vmax = 1)
+im1 = ax[1].imshow(Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
 
 divider = make_axes_locatable(ax[1])
-cax1 = divider.append_axes("right", size="5%", pad=0.4)
-cbar = fig.colorbar(im1, cax=cax1, ticks = np.linspace(0, 1, 5))
-cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'], 
-                        fontsize = 40)
+cax = divider.append_axes("right", size="5%", pad = 0.4)
+cbar = fig.colorbar(im1, cax = cax, ticks = np.linspace(0, 1, 5))
+cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'], fontsize = 40)
 
-ax[1].set_title('Collagen Density', pad = 20, fontsize = 40)
+ax[1].set_title('Coherance', pad = 20, fontsize = 40)
 ax[1].set_xticks([])
 ax[1].set_yticks([])
 
-########################################################################
+###########################################################data#############
 
-im2 = ax[2].imshow(plt.cm.gray(skimage.filters.median(raw_image / raw_image.max())) * 
-                   plt.cm.RdYlBu_r(Coherance), 
-                   vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
+im2 = ax[2].imshow(Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
 
 divider = make_axes_locatable(ax[2])
-cax2 = divider.append_axes("right", size="5%", pad=0.4)
-cbar = fig.colorbar(im1, cax=cax2, ticks = np.linspace(0, 1, 5))
-cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'], 
-                        fontsize = 40)
+cax = divider.append_axes("right", size="5%", pad=0.4)
+cbar = fig.colorbar(im2, cax = cax, ticks = np.linspace(0, 1, 3))
+cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$90^{\circ}$', r'$180^{\circ}$'], fontsize = 40)
 
-ax[2].set_title('Coherance', pad = 20, fontsize = 40)
+ax[2].set_title('Orientation', pad = 20, fontsize = 40)
 ax[2].set_xticks([])
 ax[2].set_yticks([])
 
-###########################################################data#############
-
-im3 = ax[3].imshow(plt.cm.gray(skimage.filters.median(raw_image/raw_image.max())) * 
-                   plt.cm.hsv(Orientation/180), 
-                   vmin = 0, vmax = 1, cmap = 'hsv')
-
-divider = make_axes_locatable(ax[3])
-cax3 = divider.append_axes("right", size="5%", pad=0.4)
-cbar = fig.colorbar(im3, cax=cax3, ticks = np.linspace(0, 1, 3))
-cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$90^{\circ}$', r'$180^{\circ}$'],
-                        fontsize = 40)
-
-ax[3].set_title('Orientation', pad = 20, fontsize = 40)
-ax[3].set_xticks([])
-ax[3].set_yticks([])
-
 ########################################################################
 
-im4 = ax[4].imshow(skimage.filters.median(raw_image), cmap = 'binary_r', alpha = 1)
+im3 = ax[3].imshow(skimage.filters.median(raw_image), cmap = 'Oranges', alpha = 1)
 
 xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), 
                            np.arange(raw_image.shape[1]), 
                            indexing = 'ij')
 
-ax[4].quiver(ymesh[spacing//2::spacing, spacing//2::spacing], 
-           xmesh[spacing//2::spacing, spacing//2::spacing],
-           vy[spacing//2::spacing, spacing//2::spacing], 
-           vx[spacing//2::spacing, spacing//2::spacing],
-           scale = scale, headlength = 0, headaxislength = 0, 
-           pivot = 'middle', color = 'yellow', angles = 'xy')
+ax[3].quiver(ymesh[spacing//2::spacing, spacing//2::spacing], xmesh[spacing//2::spacing, spacing//2::spacing],
+             vy[spacing//2::spacing, spacing//2::spacing], vx[spacing//2::spacing, spacing//2::spacing],
+             scale = scale, headlength = 0, headaxislength = 0, 
+             pivot = 'middle', color = 'k', angles = 'xy')
 
-ax[4].set_title('Orientation Vector Field', pad = 20, fontsize = 40)
-ax[4].set_xticks([])
-ax[4].set_yticks([])
+ax[3].set_title('Orientation Vector Field', pad = 20, fontsize = 40)
+ax[3].set_xticks([])
+ax[3].set_yticks([])
 
-divider = make_axes_locatable(ax[4])
+divider = make_axes_locatable(ax[3])
 cax = divider.append_axes("right", size="5%", pad=0.4)
 cax.remove()
 
@@ -432,7 +327,7 @@ cax.remove()
 
 fig.tight_layout()
 
-image_string = 'Result_' +                 'H_' + str(int(raw_image.shape[0] / heatmap_averaging_windows)) + ',' +                 'S_' + str(image_filter_sigma) + ',' +                 'W_' + str(local_window_size) + '_' +                 filename
+image_string = 'Result_' +                 'S_' + str(image_filter_sigma) + ',' +                 'W_' + str(local_window_size) + '_' +                 filename
 
 size = len(image_string)
 
@@ -443,14 +338,12 @@ plt.savefig(image_string, dpi = 200)
 plt.close()
 
 
-# ### Save Orientation histogram
-
-# In[15]:
+# In[14]:
 
 
 fig = plt.figure(figsize = (5, 5))
 
-bin_size = int(180/6)
+bin_size = int(180/12)
 
 a , b = np.histogram(Orientation.ravel(), bins = np.arange(0, 180 + bin_size, bin_size), density = True)
 
@@ -472,7 +365,31 @@ ax.set_yticks([])
 
 ax.set_xlabel('Orientation')
 
-image_string = 'Orientation_' +                 'H_' + str(int(raw_image.shape[0] / heatmap_averaging_windows)) + ',' +                 'S_' + str(image_filter_sigma) + ',' +                 'W_' + str(local_window_size) + '_' +                 filename
+image_string = 'Orientation_1_' +                 'S_' + str(image_filter_sigma) + ',' +                 'W_' + str(local_window_size) + '_' +                 filename
+
+size = len(image_string)
+
+image_string = image_string[:size - 4] + '.png'
+
+plt.savefig(image_string, dpi = 200)
+
+plt.close()
+
+
+# In[15]:
+
+
+plt.figure(figsize = (5, 5))
+
+sns.histplot(Orientation.ravel(), bins = 20, stat = 'percent', fill = True)
+
+plt.xlabel('Orientation')
+
+plt.ylim(0, 100)
+
+plt.xlim(-1, 181)
+
+image_string = 'Orientation_2_' +                 'S_' + str(image_filter_sigma) + ',' +                 'W_' + str(local_window_size) + '_' +                 filename
 
 size = len(image_string)
 
@@ -490,7 +407,7 @@ plt.close()
 
 plt.figure(figsize = (5, 5))
 
-sns.histplot(Coherance.ravel(), bins = 2, stat = 'percent', fill = True)
+sns.histplot(Coherance.ravel(), bins = 20, stat = 'percent', fill = True)
 
 plt.xlabel('Coherance')
 
@@ -498,7 +415,7 @@ plt.ylim(0, 100)
 
 plt.xlim(-0.01, 1.01)
 
-image_string = 'Coherance_' +                 'H_' + str(int(raw_image.shape[0] / heatmap_averaging_windows)) + ',' +                 'S_' + str(image_filter_sigma) + ',' +                 'W_' + str(local_window_size) + '_' +                 filename
+image_string = 'Coherance_' +                 'S_' + str(image_filter_sigma) + ',' +                 'W_' + str(local_window_size) + '_' +                 filename
 
 size = len(image_string)
 
@@ -509,34 +426,67 @@ plt.savefig(image_string, dpi = 200)
 plt.close()
 
 
+# ### Save the arrays
+
 # In[17]:
 
 
-filtered_image = skimage.filters.median(raw_image)
+fname = 'Structure_Tensor_' +         'S_' + str(image_filter_sigma) + ',' +         'W_' + str(local_window_size) + '_' +         filename
 
-binarized_raw_image = filtered_image > (skimage.filters.threshold_otsu(filtered_image))
+size = len(fname)
+
+fname = fname[:size - 4] + '.npy'
+
+np.save(fname, Structure_Tensor)
 
 
 # In[18]:
 
 
-results_array = [int(raw_image.shape[0] / heatmap_averaging_windows), 
-                 image_filter_sigma, 
-                 local_window_size,
-                 np.mean(raw_image), np.std(raw_image),
-                 np.mean(binarized_raw_image.astype(np.uint8)), np.std(binarized_raw_image.astype(np.uint8)),
-                 np.mean(Orientation), np.std(Orientation),
-                 np.mean(Coherance), np.std(Coherance)]
+Orientation_array = Orientation.copy()
+
+fname = 'Orientation_array_' +         'S_' + str(image_filter_sigma) + ',' +         'W_' + str(local_window_size) + '_' +         filename
+
+size = len(fname)
+
+fname = fname[:size - 4] + '.npy'
+
+np.save(fname, Orientation_array)
 
 
 # In[19]:
 
 
-fname = 'Result_'          'H_' + str(int(raw_image.shape[0] / heatmap_averaging_windows)) + ',' +         'S_' + str(image_filter_sigma) + ',' +         'W_' + str(local_window_size) + '_' +         filename
+Coherance_array = Coherance.copy()
+
+fname = 'Coherance_array_' +         'S_' + str(image_filter_sigma) + ',' +         'W_' + str(local_window_size) + '_' +         filename
+
+size = len(fname)
+
+fname = fname[:size - 4] + '.npy'
+
+np.save(fname, Coherance_array)
+
+
+# In[20]:
+
+
+results_array = np.round_([image_filter_sigma, local_window_size,
+                           np.mean(raw_image), np.std(raw_image),
+                           np.nanmean(Orientation), np.nanstd(Orientation),
+                           np.nanmean(Coherance), np.nanstd(Coherance)], 3)
+
+fname = 'Result_' +         'S_' + str(image_filter_sigma) + ',' +         'W_' + str(local_window_size) + '_' +         filename
 
 size = len(fname)
 
 fname = fname[:size - 4] + '.txt'
 
 np.savetxt(fname, results_array, fmt = '%0.3f')
+
+
+# In[ ]:
+
+
+
 
