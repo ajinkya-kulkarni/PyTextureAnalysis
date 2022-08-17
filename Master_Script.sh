@@ -3,14 +3,11 @@ clear
 
 unset all
 
+echo ""
 
 ############################################################
 
-image_filter_sigma_list=(1 2 5 10)
-
-local_window_size_list=(1 2 5 7 10 15 20 25 30 40 50)
-
-# image_filter_sigma_list=(1 2)
+local_window_size_list=(1 2 5 10 20 30 40 50 60 70 80 90 100 120 150 200 250 300 350 400 450 500)
 
 # local_window_size_list=(2 5)
 
@@ -19,8 +16,6 @@ local_window_size_list=(1 2 5 7 10 15 20 25 30 40 50)
 for filename in *.tif; do
 
 	echo "File being processed is $filename"
-
-	echo ""
 
 	rm -rf ${filename:0:-4}
 
@@ -31,35 +26,28 @@ for filename in *.tif; do
 	cd ./${filename:0:-4}
 
 	############################################################
-
-	for j in "${image_filter_sigma_list[@]}"; do
-
     
-		for k in "${local_window_size_list[@]}"; do
+	for k in "${local_window_size_list[@]}"; do
 
-			sed -e "s/CHANGE_filename/$filename/g" -e "s/CHANGE_image_filter_sigma/$j/g" -e "s/CHANGE_local_window_size/$k/g" OrientationCoherance2D.py > OrientationCoherance2D_editedS$j,W$k.py
+		sed -e "s/CHANGE_filename/$filename/g" -e "s/CHANGE_local_window_size/$k/g" OrientationCoherance2D.py > OrientationCoherance2D_editedW$k.py
 
-            ############################################################
+        ############################################################
 
-            python3 OrientationCoherance2D_editedS$j,W$k.py
-            
-            rm OrientationCoherance2D_editedS$j,W$k.py
+        python3 OrientationCoherance2D_editedW$k.py
+        
+        rm OrientationCoherance2D_editedW$k.py
 
-            ############################################################
+        ############################################################
 
-            echo "Sigma processed is $j, window size processed is $k"
+		echo "Window size processed is $k"
 
-            ############################################################
+		############################################################
 
-		done # endloop for k
-
-	done # endloop for j
+	done # endloop for k
 
 	echo ""
 
 	echo "================================"
-
-	echo ""
 
 	cd ..
 
