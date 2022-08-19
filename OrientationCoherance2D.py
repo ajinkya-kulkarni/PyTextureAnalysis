@@ -537,10 +537,3 @@ size = len(fname)
 fname = fname[:size - 4] + '.txt'
 
 np.savetxt(fname, results_array, fmt = '%0.2f')
-
-
-# In[ ]:
-
-
-
-
