@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,11 +16,6 @@ import time
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-
-# In[2]:
-
-
-# get_ipython().run_line_magic('config', "InlineBackend.figure_format ='retina'")
 
 plt.rcParams.update({'font.size': 12})
 
@@ -79,7 +69,7 @@ image_filter_sigma = 1
 
 local_window_size = CHANGE_local_window_size
 
-threshold_value = max(int(0.5 * np.median(raw_image)), 2)
+threshold_value = max(int(0.7 * np.median(raw_image)), 2)
 
 ########################################################################
 
@@ -526,9 +516,7 @@ np.save(fname, Coherance)
 # In[23]:
 
 
-results_array = np.hstack((image_filter_sigma, local_window_size, threshold_value,
-                           np.nanmean(Orientation), np.nanmedian(Orientation), np.nanstd(Orientation),
-                           np.nanmean(Coherance), np.nanmedian(Coherance), np.nanstd(Coherance)))
+results_array = np.hstack((image_filter_sigma, local_window_size, threshold_value, np.nanmean(Orientation), np.nanmedian(Orientation), np.nanstd(Orientation), np.nanmean(Coherance), np.nanmedian(Coherance), np.nanstd(Coherance)))
 
 fname = 'Result_' + 'W_' + str(local_window_size) + ',' + filename
 
