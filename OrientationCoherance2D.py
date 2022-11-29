@@ -5,17 +5,13 @@ import math
 from matplotlib import colors
 
 import seaborn as sns
-from scipy.stats import circvar
 
 import skimage as skimage
 import scipy as scipy
 import scipy.ndimage
 import cv2 as cv
 
-import time
-
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
 
 plt.rcParams.update({'font.size': 12})
 
@@ -55,7 +51,9 @@ if Testing_Mode == False:
     
     filename = 'CHANGE_filename'
     
-    raw_image = skimage.io.imread(filename).astype('float32')
+    raw_image = cv.imread(filename, cv.IMREAD_GRAYSCALE)
+    
+#     raw_image = skimage.io.imread(filename).astype('float32')
 
 if Testing_Mode == True:
 
@@ -67,7 +65,7 @@ if Testing_Mode == True:
 
 image_filter_sigma = 1
 
-local_window_size = CHANGE_local_window_size
+local_sigma = CHANGE_local_sigma
 
 threshold_value = max(int(0.7 * np.median(raw_image)), 2)
 
@@ -140,7 +138,7 @@ def make_HeatMap(input_image, number_heatmap_windows):
 # In[10]:
 
 
-def make_StructureTensor2D(input_image, image_filter_sigma, local_window_size):
+def make_StructureTensor2D(input_image, image_filter_sigma, local_sigma):
 
     ### Calculate image gradients using Sobel or Gaussian filters
 
@@ -149,7 +147,7 @@ def make_StructureTensor2D(input_image, image_filter_sigma, local_window_size):
     ### Filter the image a bit
 
     filtered_image = skimage.filters.gaussian(input_image, sigma = image_filter_sigma, mode = 'nearest')
-    
+
     ### Calculate image gradients in x and y directions
 
     image_gradient_x = scipy.ndimage.sobel(filtered_image, axis = 0, mode = 'nearest')
@@ -159,16 +157,28 @@ def make_StructureTensor2D(input_image, image_filter_sigma, local_window_size):
     #########################################################################################################
 
     ### Calculate Jxx, Jyy and Jxy
+    
+    # Relation between Box filter size in relation to Gaussian filter sigma:
+    # https://stackoverflow.com/questions/35340197/box-filter-size-in-relation-to-gaussian-filter-sigma
 
     Jxx = scipy.ndimage.gaussian_filter(image_gradient_x * image_gradient_x, 
-                                        local_window_size, mode = 'nearest')
+                                        local_sigma, 
+                                        mode = 'nearest')
 
     Jyy = scipy.ndimage.gaussian_filter(image_gradient_y * image_gradient_y, 
-                                        local_window_size, mode = 'nearest')
+                                        local_sigma, 
+                                        mode = 'nearest')
 
     Jxy = scipy.ndimage.gaussian_filter(image_gradient_x * image_gradient_y, 
-                                        local_window_size, mode = 'nearest')
+                                        local_sigma, 
+                                        mode = 'nearest')
 
+#     Jxx = cv.boxFilter(image_gradient_x * image_gradient_x, cv.CV_32F, (local_window_size, local_window_size))
+
+#     Jyy = cv.boxFilter(image_gradient_y * image_gradient_y, cv.CV_32F, (local_window_size, local_window_size))
+
+#     Jxy = cv.boxFilter(image_gradient_x * image_gradient_y, cv.CV_32F, (local_window_size, local_window_size))
+    
     #########################################################################################################
 
     ### Make Structure Tensor
@@ -209,21 +219,23 @@ def make_Coherance_Orientation(input_image, EigenValues, EigenVectors, Structure
     # Smallest_Normalized_Eigenvalues = EigenValues[..., 0] / (np.trace(Structure_Tensor, axis1 = 2, axis2 = 3))
 
     # Largest_Normalized_Eigenvalues = EigenValues[..., 1] / (np.trace(Structure_Tensor, axis1 = 2, axis2 = 3))
-    
+
     Coherance = np.zeros(input_image.shape)
+    
+    #############################################
     
     for j in range(input_image.shape[1]):
 
         for i in range(input_image.shape[0]):
 
-            if ( ( (EigenValues[i, j].sum()) > 0) and (input_image[i, j] > threshold_value)):
+            if ( (input_image[i, j] >= threshold_value ) and ((EigenValues[i, j].sum()) > 0) ) :
 
                 Smallest_Normalized_Eigenvalues = EigenValues[i, j][0] / np.trace(Structure_Tensor[i, j])
 
                 Largest_Normalized_Eigenvalues = EigenValues[i, j][1] / np.trace(Structure_Tensor[i, j])
 
                 Coherance[i, j] = np.abs((Largest_Normalized_Eigenvalues - Smallest_Normalized_Eigenvalues) /
-                                         (Smallest_Normalized_Eigenvalues + Largest_Normalized_Eigenvalues))
+                                        (Smallest_Normalized_Eigenvalues + Largest_Normalized_Eigenvalues))
 
             else:
 
@@ -259,21 +271,17 @@ def discrete_cmap(N, base_cmap):
 
 ##########################################################################################
 
-Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_StructureTensor2D(raw_image, image_filter_sigma, local_window_size)
+Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_StructureTensor2D(raw_image, 
+                                                                                    image_filter_sigma, 
+                                                                                    local_sigma)
 
 ##########################################################################################
 
 # Calculate Orientation, Coherance
 
-start = time.time()
-
 Coherance, Orientation, vx, vy = make_Coherance_Orientation(raw_image, EigenValues, EigenVectors, Structure_Tensor, Jxx, Jxy, Jyy)
 
-end = time.time()
-
 ##########################################################################################
-
-print('Coherance and Orientation calculations took ' + str(int(end - start)) + ' seconds')
 
 # ### Plot everything
 
@@ -320,7 +328,7 @@ ax[2].set_yticks([])
 
 ########################################################################
 
-im3 = ax[3].imshow(raw_image, cmap = 'Oranges', alpha = 1)
+im3 = ax[3].imshow(raw_image, cmap = 'Oranges', alpha = 0.8)
 
 xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), 
                            np.arange(raw_image.shape[1]), 
@@ -343,7 +351,7 @@ cax.remove()
 
 fig.tight_layout()
 
-image_string = 'Result_' + 'W_' + str(local_window_size) + ',' + filename
+image_string = 'Result_' + 'LocalSigma_' + str(local_sigma) + ',' + filename
 
 size = len(image_string)
 
@@ -456,7 +464,7 @@ plt.close()
 # In[18]:
 
 
-fname = 'Structure_Tensor_' + 'W_' + str(local_window_size) + ',' + filename
+fname = 'Structure_Tensor_' + 'LocalSigma_' + str(local_sigma) + ',' + filename
 
 size = len(fname)
 
@@ -468,7 +476,7 @@ np.save(fname, Structure_Tensor)
 # In[19]:
 
 
-fname = 'EigenValues_' + 'W_' + str(local_window_size) + ',' + filename
+fname = 'EigenValues_' + 'LocalSigma_' + str(local_sigma) + ',' + filename
 
 size = len(fname)
 
@@ -480,7 +488,7 @@ np.save(fname, EigenValues)
 # In[20]:
 
 
-fname = 'EigenVectors_' + 'W_' + str(local_window_size) + ',' + filename
+fname = 'EigenVectors_' + 'LocalSigma_' + str(local_sigma) + ',' + filename
 
 size = len(fname)
 
@@ -492,7 +500,7 @@ np.save(fname, EigenVectors)
 # In[21]:
 
 
-fname = 'Orientation_' + 'W_' + str(local_window_size) + ',' + filename
+fname = 'Orientation_' + 'LocalSigma_' + str(local_sigma) + ',' + filename
 
 size = len(fname)
 
@@ -504,7 +512,7 @@ np.save(fname, Orientation)
 # In[22]:
 
 
-fname = 'Coherance_' + 'W_' + str(local_window_size) + ',' + filename
+fname = 'Coherance_' + 'LocalSigma_' + str(local_sigma) + ',' + filename
 
 size = len(fname)
 
@@ -512,16 +520,3 @@ fname = fname[:size - 4] + '.npy'
 
 np.save(fname, Coherance)
 
-
-# In[23]:
-
-
-results_array = np.hstack((image_filter_sigma, local_window_size, threshold_value, np.nanmean(Orientation), np.nanmedian(Orientation), np.nanstd(Orientation), np.nanmean(Coherance), np.nanmedian(Coherance), np.nanstd(Coherance)))
-
-fname = 'Result_' + 'W_' + str(local_window_size) + ',' + filename
-
-size = len(fname)
-
-fname = fname[:size - 4] + '.txt'
-
-np.savetxt(fname, results_array, fmt = '%0.2f')
