@@ -1,6 +1,6 @@
 ## Overview
 
-PyTextureAnalysis is a Python package that contains tools to analyze the texture of images. This code contains functions to calculate the local orientation of fibres in an image, as well as the degree of coherence, which is a measure of how bundled and organized the fibres are. The following functions are included:
+PyTextureAnalysis is a Python package (inspired from http://bigwww.epfl.ch/demo/orientation/) that contains tools to analyze the texture of images. This code contains functions to calculate the local orientation of fibres in an image, as well as the degree of coherence, which is a measure of how bundled and organized the fibres are. The following functions are included:
 
 - `make_coherence`: calculates the degree of coherence of fibres in an image based on the eigenvalues and structure tensor of the image.
 - `make_image_gradients`: calculates the gradients of an image in the x and y directions using Gaussian filters.
