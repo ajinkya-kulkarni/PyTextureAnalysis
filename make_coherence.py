@@ -37,8 +37,6 @@ def make_coherence(input_image, eigenvalues, structure_tensor, threshold_value):
 
 	coherence = np.zeros(input_image.shape)
 
-	#############################################
-
 	for j in range(input_image.shape[1]):
 
 		for i in range(input_image.shape[0]):
