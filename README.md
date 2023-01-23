@@ -8,6 +8,10 @@ PyTextureAnalysis is a Python package (inspired from http://bigwww.epfl.ch/demo/
 - `make_vxvy`: calculates the x and y components of the eigenvectors of the structure tensor.
 - `make_structure_tensor_2d`: calculates the 2D structure tensor of an image using the image gradients in the x and y directions and a local standard deviation.
 
+## Demo
+
+Have a look at the `Example` file to get an idea how to use the package.
+
 ## Dependencies
 
 The following dependencies must be installed:
