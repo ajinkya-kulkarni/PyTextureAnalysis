@@ -28,33 +28,31 @@ def make_coherence(input_image, eigenvalues, structure_tensor, threshold_value):
 
 	Parameters:
 	input_image (numpy.ndarray): 2D array representing the input image.
-	eigenvalues (numpy.ndarray): 2D array of eigenvalues of the structure tensor.
-	structure_tensor (numpy.ndarray): 2D array of the structure tensor.
 	threshold_value (float): threshold value for the input image. Only pixels with intensity greater than or equal to threshold_value will be considered.
 
 	Returns:
 	numpy.ndarray: 2D array representing the coherence of the input image. Pixels that do not meet the threshold condition are set to NaN.
 
 	"""
-	# check if input_image is 2D array
-	if len(input_image.shape) != 2:
-		raise ValueError("Input image must be a 2D array")
-	# check if eigenvalues and structure_tensor has the same shape as input_image
-	if eigenvalues.shape != input_image.shape or structure_tensor.shape != input_image.shape:
-		raise ValueError("Eigenvalues and Structure Tensor must have the same shape as input image")
-	# check if threshold_value is a number
-	if not isinstance(threshold_value, (float, int)):
-		raise ValueError("Threshold value must be a number")
 
 	coherence = np.zeros(input_image.shape)
-	mask = (input_image >= threshold_value) & ((eigenvalues.sum(axis=-1)) > 0)
-	trace = np.trace(structure_tensor, axis=-1)
 
-	smallest_normalized_eigenvalues = eigenvalues[..., 0] / trace
-	largest_normalized_eigenvalues = eigenvalues[..., 1] / trace
+	#############################################
 
-	coherence[mask] = np.abs((largest_normalized_eigenvalues - smallest_normalized_eigenvalues) / (smallest_normalized_eigenvalues + largest_normalized_eigenvalues))[mask]
+	for j in range(input_image.shape[1]):
 
-	coherence[~mask] = np.nan
+		for i in range(input_image.shape[0]):
+
+			if ( (input_image[i, j] >= threshold_value ) and ((eigenvalues[i, j].sum()) > 0) ) :
+
+				Smallest_Normalized_Eigenvalues = eigenvalues[i, j][0] / np.trace(structure_tensor[i, j])
+
+				Largest_Normalized_Eigenvalues = eigenvalues[i, j][1] / np.trace(structure_tensor[i, j])
+
+				coherence[i, j] = np.abs((Largest_Normalized_Eigenvalues - Smallest_Normalized_Eigenvalues) / (Smallest_Normalized_Eigenvalues + Largest_Normalized_Eigenvalues))
+
+			else:
+
+				coherence[i, j] = np.nan
 
 	return coherence

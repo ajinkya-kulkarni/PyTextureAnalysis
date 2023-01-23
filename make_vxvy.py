@@ -28,7 +28,6 @@ def make_vx_vy(input_image, eigenvectors, threshold_value):
 
 	Parameters:
 	input_image (numpy.ndarray): 2D array representing the input image.
-	eigenvectors (numpy.ndarray): 3D array of eigenvectors. The last axis should have 2 elements, corresponding to x and y components of the eigenvectors.
 	threshold_value (float): threshold value for the input image. Only pixels with intensity greater than or equal to threshold_value will be considered.
 
 	Returns:
@@ -38,12 +37,6 @@ def make_vx_vy(input_image, eigenvectors, threshold_value):
 	# check if input_image is 2D array
 	if len(input_image.shape) != 2:
 		raise ValueError("Input image must be a 2D array")
-	# check if eigenvectors is a 3D array with last axis having 2 elements
-	if len(eigenvectors.shape) != 3 or eigenvectors.shape[-1] != 2:
-		raise ValueError("Eigenvectors must be a 3D array with last axis having 2 elements")
-	# check if eigenvectors and input_image have the same shape
-	if eigenvectors.shape[:-1] != input_image.shape:
-		raise ValueError("Eigenvectors and input image must have the same shape")
 	# check if threshold_value is a number
 	if not isinstance(threshold_value, (float, int)):
 		raise ValueError("Threshold value must be a number")
