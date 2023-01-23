@@ -10,7 +10,7 @@ PyTextureAnalysis is a Python package (inspired from http://bigwww.epfl.ch/demo/
 
 ## Demo
 
-Have a look at the `Example` file to get an idea how to use the package.
+Have a look at the `Example.ipynb` file to get an idea how to use the package to extract and visualize local fibre orientation and organization.
 
 ## Dependencies
 
