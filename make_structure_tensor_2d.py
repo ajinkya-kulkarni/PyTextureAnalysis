@@ -53,6 +53,6 @@ def make_structure_tensor_2d(image_gradient_x, image_gradient_y, local_sigma):
 	Raw_Structure_Tensor = np.array([[Jxx, Jxy], [Jxy, Jyy]])
 
 	Structure_Tensor = np.moveaxis(Raw_Structure_Tensor, [0, 1], [2, 3]) # For solving EigenProblem
-	EigenValues, EigenVectors = np.linalg.eigh(Structure_Tensor) # eigh because matrix is
+	EigenValues, EigenVectors = np.linalg.eigh(Structure_Tensor) # eigh because matrix is symmetric 
 
 	return Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy
