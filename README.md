@@ -17,4 +17,4 @@ The following dependencies must be installed:
 - scipy
 - opencv-python
 
-You can install these dependencies by first installing `Python` and then running the command: `pip install -r requirements.txt` in the terminal
+You can install these dependencies by first installing `Python` and then running the command: `pip install -r requirements.txt` in the terminal.
