@@ -45,7 +45,7 @@ def make_structure_tensor_2d(image_gradient_x, image_gradient_y, local_sigma):
 	# check if local_sigma is a positive number
 	if not isinstance(local_sigma, (float, int)) or local_sigma <= 0:
 		raise ValueError("local_sigma must be a positive number")
-		
+
 	Jxx = scipy.ndimage.gaussian_filter(image_gradient_x * image_gradient_x, local_sigma, mode = 'nearest')
 	Jyy = scipy.ndimage.gaussian_filter(image_gradient_y * image_gradient_y, local_sigma, mode = 'nearest')
 	Jxy = scipy.ndimage.gaussian_filter(image_gradient_x * image_gradient_y, local_sigma, mode = 'nearest')
