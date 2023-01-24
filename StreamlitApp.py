@@ -109,16 +109,15 @@ def main():
 	fig, ax = plt.subplots(1, 2, figsize = (25, 10), sharex = True, sharey = True)
 
 	ax[0].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
-	ax[0].set_title('Uploaded Image', pad = 20, fontsize = FONTSIZE)
+	ax[0].set_title('Uploaded Image', pad = 30, fontsize = FONTSIZE)
 	ax[0].set_xticks([])
 	ax[0].set_yticks([])
 
 	ax[1].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
-	ax[1].set_title('Filtered Image', pad = 20, fontsize = FONTSIZE)
+	ax[1].set_title('Filtered Image', pad = 30, fontsize = FONTSIZE)
 	ax[1].set_xticks([])
 	ax[1].set_yticks([])
 
-	fig.tight_layout()
 	plt.savefig('image1.png', dpi = DPI, bbox_inches = 'tight')
 	plt.close()
 
@@ -172,9 +171,9 @@ def main():
 	divider = make_axes_locatable(ax[0])
 	cax = divider.append_axes("right", size="5%", pad = 0.4)
 	cbar = fig.colorbar(im1, cax = cax, ticks = np.linspace(0, 1, 5))
-	cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'])
+	cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'], fontsize = FACTOR*FONTSIZE)
 
-	ax[0].set_title('Coherance', pad = 20, fontsize = FACTOR*FONTSIZE)
+	ax[0].set_title('Coherance', pad = 30, fontsize = FACTOR*FONTSIZE)
 	ax[0].set_xticks([])
 	ax[0].set_yticks([])
 
@@ -185,9 +184,9 @@ def main():
 	divider = make_axes_locatable(ax[1])
 	cax = divider.append_axes("right", size="5%", pad=0.4)
 	cbar = fig.colorbar(im2, cax = cax, ticks = np.linspace(0, 1, 5))
-	cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
+	cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'], fontsize = FACTOR*FONTSIZE)
 
-	ax[1].set_title('Orientation', pad = 20, fontsize = FACTOR*FONTSIZE)
+	ax[1].set_title('Orientation', pad = 30, fontsize = FACTOR*FONTSIZE)
 	ax[1].set_xticks([])
 	ax[1].set_yticks([])
 
@@ -212,7 +211,6 @@ def main():
 	cax = divider.append_axes("right", size="5%", pad=0.4)
 	cax.remove()
 
-	fig.tight_layout()
 	plt.savefig('image2.png', dpi = DPI, bbox_inches = 'tight')
 	plt.close()
 
