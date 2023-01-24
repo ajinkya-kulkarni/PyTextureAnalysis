@@ -24,15 +24,12 @@ import streamlit as st
 
 import numpy as np
 import cv2 as cv
-from scipy import ndimage
-import scipy.ndimage
 import skimage as skimage
-import os
-import time
-
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+import os
+import time
 from io import BytesIO
 
 import sys
@@ -99,7 +96,7 @@ def main():
 
 	####################################################################################
 
-	st.slider('Filter', min_value = 1.0, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+	st.slider('Filter', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
 	FilterKey = float(st.session_state['-FilterKey-'])
 
 	filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
@@ -141,7 +138,7 @@ def main():
 	st.slider('Scale', min_value = 10, max_value = 100, value = 60, step = 5, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
 	ScaleKey = int(st.session_state['-ScaleKey-'])
 
-	st.slider('Alpha', min_value = 0.0, max_value = 1.0, value = 0.5, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
+	st.slider('Alpha', min_value = 0.1, max_value = 1.0, value = 0.5, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
 	AlphaKey = float(st.session_state['-AlphaKey-'])
 
 	####################################################################################
@@ -203,7 +200,7 @@ def main():
 				scale = ScaleKey, headlength = 0, headaxislength = 0, 
 				pivot = 'middle', color = 'k', angles = 'xy')
 
-	ax[2].set_title('Local Orientation', pad = 20, fontsize = FACTOR*FONTSIZE)
+	ax[2].set_title('Local Orientation', pad = 30, fontsize = FACTOR*FONTSIZE)
 	ax[2].set_xticks([])
 	ax[2].set_yticks([])
 
