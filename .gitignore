@@ -3,3 +3,4 @@
 .ipynb_checkpoints/Example-checkpoint.ipynb
 .ipynb_checkpoints/Example-checkpoint.ipynb
 *.png
+.DS_Store
