@@ -85,7 +85,7 @@ def main():
 	####################################################################################
 
 	try:
-		raw_image = cv.imread(uploaded_file.name, cv.IMREAD_GRAYSCALE)
+		raw_image = skimage.io.imread(uploaded_file.name, as_gray = True)
 	except:
 		raise Exception('Image ...')
 
