@@ -27,6 +27,7 @@ import cv2 as cv
 from scipy import ndimage
 import scipy.ndimage
 import skimage as skimage
+import os
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -95,7 +96,7 @@ def main():
 		st.slider('Filter', min_value = 0.0, max_value = 5.0, value = 1.0, step = 0.5, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
 		FilterKey = float(st.session_state['-FilterKey-'])
 
-		st.slider('Local Sigma', min_value = 0, max_value = 20, value = 5, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		st.slider('Local Sigma', min_value = 0, max_value = 20, value = 1, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
 		st.slider('Threshold Value', min_value = 0, max_value = 200, value = 10, step = 5, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
@@ -192,6 +193,11 @@ def main():
 		st.image('OrientationVectorField.png', use_column_width=True)
 		
 		########################################################################
+
+		os.remove('Filtered_image.png')
+		os.remove('Coherance.png')
+		os.remove('Orientation.png')
+		os.remove('OrientationVectorField.png')
 
 		st.stop()
 
