@@ -102,8 +102,14 @@ def main():
 		st.slider('Threshold Value', min_value = 0, max_value = 200, value = 10, step = 5, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
 		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
 
-		filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
-		plt.clf()
+		if (FilterKey >= 0.5):
+
+			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
+			plt.clf()
+
+		else:
+
+			filtered_image = raw_image
 		
 		im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
 		plt.axis('off')
