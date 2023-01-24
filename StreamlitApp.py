@@ -28,6 +28,9 @@ from scipy import ndimage
 import scipy.ndimage
 import skimage as skimage
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from io import BytesIO
 
 import sys
@@ -89,16 +92,30 @@ def main():
 
 		vx, vy = make_vx_vy(filtered_image, EigenVectors, threshold_value)
 
-		left_column1, right_column1  = st.columns(2)
+		########################################################################
 
-		with left_column1:
+		plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
 
-			st.image(Image_Coherance, caption='Coherance', use_column_width=True)
+		plt.title('Coherance')
+		plt.axis('off')
 
-		with right_column1:
+		plt.savefig('Coherance.png', dpi = 200)
 
-			st.image(Image_Orientation, caption='Orientation', use_column_width=True)
+		st.image('Coherance.png', use_column_width=True)
 
+		########################################################################
+		
+		plt.imshow(Image_Orientation, vmin = 0, vmax = 180, cmap = 'hsv')
+
+		plt.title('Orientation')
+		plt.axis('off')
+
+		plt.savefig('Orientation.png', dpi = 200)
+
+		st.image('Orientation.png', use_column_width=True)
+
+		########################################################################
+		
 		st.stop()
 
 if __name__== "__main__":
