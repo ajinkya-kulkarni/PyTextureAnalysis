@@ -57,7 +57,7 @@ image_bytes = BytesIO(image_data)
 
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
-FONTSIZE = 30
+FONTSIZE = 25
 DPI = 300
 FACTOR = 1.2
 
@@ -103,23 +103,15 @@ def main():
 
 	####################################################################################
 
-	left_column1, right_column1  = st.columns(2)
-
-	with left_column1:
-
-		st.subheader('Uploaded Image')
-
-	with right_column1:
-
-		st.subheader('Filtered Image')
-
 	fig, ax = plt.subplots(1, 2, figsize = (25, 10), sharex = True, sharey = True)
 
 	ax[0].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
+	ax[0].set_title('Uploaded Image', pad = 30, fontsize = FONTSIZE)
 	ax[0].set_xticks([])
 	ax[0].set_yticks([])
 
 	ax[1].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
+	ax[1].set_title('Filtered Image', pad = 30, fontsize = FONTSIZE)
 	ax[1].set_xticks([])
 	ax[1].set_yticks([])
 
@@ -169,21 +161,6 @@ def main():
 
 	####################################################################################
 
-	left_column1, middle_column1, right_column1  = st.columns(3)
-
-	with left_column1:
-
-		st.subheader('Coherence')
-
-	with middle_column1:
-
-		st.subheader('Orientation')
-
-	with right_column1:
-
-		st.subheader('Local Orientation')
-
-
 	fig, ax = plt.subplots(1, 3, figsize = (40, 10), sharex = True, sharey = True)
 
 	im1 = ax[0].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
@@ -193,6 +170,7 @@ def main():
 	cbar = fig.colorbar(im1, cax = cax, ticks = np.linspace(0, 1, 5))
 	cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'], fontsize = FACTOR*FONTSIZE)
 
+	ax[0].set_title('Coherance', pad = 30, fontsize = FACTOR*FONTSIZE)
 	ax[0].set_xticks([])
 	ax[0].set_yticks([])
 
@@ -205,6 +183,7 @@ def main():
 	cbar = fig.colorbar(im2, cax = cax, ticks = np.linspace(0, 1, 5))
 	cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'], fontsize = FACTOR*FONTSIZE)
 
+	ax[1].set_title('Orientation', pad = 30, fontsize = FACTOR*FONTSIZE)
 	ax[1].set_xticks([])
 	ax[1].set_yticks([])
 
@@ -221,6 +200,7 @@ def main():
 				scale = ScaleKey, headlength = 0, headaxislength = 0, 
 				pivot = 'middle', color = 'k', angles = 'xy')
 
+	ax[2].set_title('Local Orientation', pad = 30, fontsize = FACTOR*FONTSIZE)
 	ax[2].set_xticks([])
 	ax[2].set_yticks([])
 
