@@ -70,7 +70,7 @@ st.markdown("")
 
 def main():
 
-	uploaded_file = st.file_uploader("Choose an image...", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
+	uploaded_file = st.file_uploader("Upload an image to be analyzed", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
 
 	st.markdown("")
 	st.markdown("""---""")
@@ -93,23 +93,17 @@ def main():
 
 		st.markdown("")
 
-		st.slider('Filter', min_value = 0.0, max_value = 5.0, value = 1.0, step = 0.5, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+		st.slider('Filter', min_value = 1.0, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
 		FilterKey = float(st.session_state['-FilterKey-'])
 
-		st.slider('Local Sigma', min_value = 0, max_value = 20, value = 1, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		st.slider('Local Sigma', min_value = 1, max_value = 20, value = 5, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
-		st.slider('Threshold Value', min_value = 0, max_value = 200, value = 10, step = 5, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
+		st.slider('Threshold Value', min_value = 5, max_value = 200, value = 10, step = 5, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
 		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
 
-		if (FilterKey >= 0.5):
-
-			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
-			plt.clf()
-
-		else:
-
-			filtered_image = raw_image
+		filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
+		plt.clf()
 		
 		im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
 		plt.axis('off')
@@ -144,7 +138,7 @@ def main():
 		plt.axis('off')
 
 		divider = make_axes_locatable(plt.gca())
-		cax = divider.append_axes("right", "5%", pad="3%")
+		cax = divider.append_axes("right", "3%", pad="5%")
 		cbar = plt.colorbar(im, cax=cax)
 		cbar.set_ticks([0, 0.5, 1])
 		cbar.set_ticklabels(['0', '0.5', '1'])
@@ -163,7 +157,7 @@ def main():
 		plt.axis('off')
 
 		divider = make_axes_locatable(plt.gca())
-		cax = divider.append_axes("right", "5%", pad="3%")
+		cax = divider.append_axes("right", "3%", pad="5%")
 		cbar = plt.colorbar(im, cax=cax)
 		cbar.set_ticks([0, 90, 180])
 		cbar.set_ticklabels(['0', '90', '180'])
