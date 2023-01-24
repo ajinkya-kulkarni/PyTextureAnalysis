@@ -99,5 +99,7 @@ def main():
 
 			st.image(Image_Orientation, caption='Orientation', use_column_width=True)
 
+		st.stop()
+
 if __name__== "__main__":
 	main()
