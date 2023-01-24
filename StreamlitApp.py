@@ -73,9 +73,9 @@ def main():
 	if uploaded_file is not None:
 
 		raw_image = cv.imread(uploaded_file.name, cv.IMREAD_GRAYSCALE)
-
-		st.image(raw_image, caption='Original Image.', use_column_width=True, clamp=True)
-
+		
+		st.image(raw_image, caption='Original Image.', use_column_width = True)
+		
 		image_filter_sigma = 1
 		local_sigma = 8
 		threshold_value = max(int(0.5 * np.median(raw_image)), 2)
@@ -98,8 +98,8 @@ def main():
 
 		plt.title('Coherance')
 		plt.axis('off')
-
-		plt.savefig('Coherance.png', dpi = 200)
+		plt.tight_layout()
+		plt.savefig('Coherance.png', dpi = 400)
 
 		st.image('Coherance.png', use_column_width=True)
 
@@ -109,13 +109,37 @@ def main():
 
 		plt.title('Orientation')
 		plt.axis('off')
-
-		plt.savefig('Orientation.png', dpi = 200)
+		plt.tight_layout()
+		plt.savefig('Orientation.png', dpi = 400)
 
 		st.image('Orientation.png', use_column_width=True)
 
 		########################################################################
+
+		spacing = 15 # Spacing between plotting the orientation vectors
+
+		scale = 60 # Length of each vector for plotting
+
+		# plt.imshow(raw_image, cmap = 'Oranges', alpha = 0.7)
+
+		xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
+
+		plt.gca().quiver(ymesh[spacing//2::spacing, spacing//2::spacing], 
+					xmesh[spacing//2::spacing, spacing//2::spacing],
+					vy[spacing//2::spacing, spacing//2::spacing], 
+					vx[spacing//2::spacing, spacing//2::spacing],
+					scale = scale, headlength = 0, headaxislength = 0, 
+					pivot = 'middle', color = 'k', angles = 'xy')
+
+		plt.title('Local Orientation')
+		plt.axis('off')
+		plt.tight_layout()
+		plt.savefig('OrientationVectorField.png', dpi = 400)
+
+		st.image('OrientationVectorField.png', use_column_width=True)
 		
+		########################################################################
+
 		st.stop()
 
 if __name__== "__main__":
