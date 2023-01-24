@@ -25,6 +25,7 @@ import streamlit as st
 import numpy as np
 import cv2 as cv
 import skimage as skimage
+from PIL import Image
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -57,7 +58,7 @@ image_bytes = BytesIO(image_data)
 
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
-FONTSIZE = 25
+FONTSIZE = 22
 DPI = 300
 FACTOR = 1.2
 
@@ -84,10 +85,8 @@ def main():
 
 	####################################################################################
 
-	try:
-		raw_image = skimage.io.imread(uploaded_file.name, as_gray = True)
-	except:
-		raise Exception('Image ...')
+	raw_image = Image.open(uploaded_file)
+	raw_image = np.array(raw_image)
 
 	if len(raw_image.shape) != 2:
 		raise ValueError("The image is not 2D.")
