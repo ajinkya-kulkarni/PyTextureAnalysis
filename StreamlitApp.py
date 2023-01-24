@@ -60,9 +60,9 @@ image_bytes = BytesIO(image_data)
 
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
-FONTSIZE = 35
+FONTSIZE = 30
 DPI = 300
-FACTOR = 1.3
+FACTOR = 1.2
 
 # Title of the web app
 
