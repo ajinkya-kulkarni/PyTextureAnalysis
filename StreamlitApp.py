@@ -77,14 +77,22 @@ def main():
 
 	if uploaded_file is not None:
 
-		raw_image = cv.imread(uploaded_file.name, cv.IMREAD_GRAYSCALE)
+		try:
+			raw_image = cv.imread(uploaded_file.name, cv.IMREAD_GRAYSCALE)
+		except:
+			raise Exception('Image ...')
+
+		if len(raw_image.shape) != 2:
+			raise ValueError("The image is not 2D.")
+		if raw_image.dtype != 'uint8':
+			raise ValueError("The image is not 8-bit.")
 
 		st.subheader('Uploaded Image')
 		st.image(raw_image, use_column_width = True)
 
 		st.markdown("")
 
-		st.slider('Filter', min_value = 0.0, max_value = 10.0, value = 1.0, step = 0.5, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+		st.slider('Filter', min_value = 0.0, max_value = 5.0, value = 1.0, step = 0.5, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
 		FilterKey = float(st.session_state['-FilterKey-'])
 
 		st.slider('Local Sigma', min_value = 0, max_value = 20, value = 5, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
@@ -98,27 +106,29 @@ def main():
 		
 		im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
 		plt.axis('off')
-
-		divider = make_axes_locatable(plt.gca())
-		cax = divider.append_axes("right", "5%", pad="3%")
-		plt.colorbar(im, cax=cax)
 		plt.tight_layout()
-		plt.savefig('Filtered_image.png', dpi = 400, bbox_inches='tight')
+		plt.savefig('Filtered_image.png', dpi = 200, bbox_inches='tight')
 
 		st.subheader('Filtered Image')
 		st.image('Filtered_image.png', clamp = True, use_column_width = True)
 
 		st.markdown("")
 
-		image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
+		try:
 
-		Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+			image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
 
-		Image_Coherance = make_coherence(filtered_image, EigenValues, ThresholdValueKey)
+			Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
 
-		Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
+			Image_Coherance = make_coherence(filtered_image, EigenValues, ThresholdValueKey)
 
-		vx, vy = make_vx_vy(filtered_image, EigenVectors, ThresholdValueKey)
+			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
+
+			vx, vy = make_vx_vy(filtered_image, EigenVectors, ThresholdValueKey)
+
+		except:
+
+			raise Exception('Something went wrong in the analysis')
 
 		########################################################################
 
@@ -128,9 +138,11 @@ def main():
 
 		divider = make_axes_locatable(plt.gca())
 		cax = divider.append_axes("right", "5%", pad="3%")
-		plt.colorbar(im, cax=cax)
+		cbar = plt.colorbar(im, cax=cax)
+		cbar.set_ticks([0, 0.5, 1])
+		cbar.set_ticklabels(['0', '0.5', '1'])
 		plt.tight_layout()
-		plt.savefig('Coherance.png', dpi = 400, bbox_inches='tight')
+		plt.savefig('Coherance.png', dpi = 200, bbox_inches='tight')
 
 		st.subheader('Coherance')
 		st.image('Coherance.png', use_column_width=True)
@@ -145,9 +157,11 @@ def main():
 
 		divider = make_axes_locatable(plt.gca())
 		cax = divider.append_axes("right", "5%", pad="3%")
-		plt.colorbar(im, cax=cax)
+		cbar = plt.colorbar(im, cax=cax)
+		cbar.set_ticks([0, 90, 180])
+		cbar.set_ticklabels(['0', '90', '180'])
 		plt.tight_layout()
-		plt.savefig('Orientation.png', dpi = 400, bbox_inches='tight')
+		plt.savefig('Orientation.png', dpi = 200, bbox_inches='tight')
 
 		st.subheader('Orientation')
 		st.image('Orientation.png', use_column_width=True)
@@ -162,19 +176,17 @@ def main():
 		st.slider('Scale', min_value = 10, max_value = 100, value = 60, step = 5, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
 		ScaleKey = int(st.session_state['-ScaleKey-'])
 
+		st.slider('Alpha', min_value = 0.0, max_value = 1.0, value = 0.5, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
+		AlphaKey = float(st.session_state['-AlphaKey-'])
+
 		plt.clf()
-		plt.imshow(raw_image, cmap = 'Oranges', alpha = 0.7)
+		plt.imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
 		xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
-		plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], 
-					xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
-					vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], 
-					vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
-					scale = ScaleKey, headlength = 0, headaxislength = 0, 
-					pivot = 'middle', color = 'k', angles = 'xy')
+		plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], scale = ScaleKey, headlength = 0, headaxislength = 0, pivot = 'middle', color = 'k', angles = 'xy')
 
 		plt.axis('off')
 		plt.tight_layout()
-		plt.savefig('OrientationVectorField.png', dpi = 400, bbox_inches='tight')
+		plt.savefig('OrientationVectorField.png', dpi = 200, bbox_inches='tight')
 
 		st.subheader('Local Orientation')
 		st.image('OrientationVectorField.png', use_column_width=True)
