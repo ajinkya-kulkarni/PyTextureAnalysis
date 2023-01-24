@@ -27,11 +27,8 @@ import cv2 as cv
 from scipy import ndimage
 import scipy.ndimage
 import skimage as skimage
-import matplotlib.pyplot as plt
 
-import urllib
 from io import BytesIO
-import os
 
 import sys
 
@@ -42,45 +39,6 @@ sys.dont_write_bytecode = True
 sys.tracebacklimit = 0 
 
 #######################################################################################################
-
-def check_and_delete(file_name):
-	file_path = os.path.join(os.getcwd(), file_name)
-
-	if os.path.exists(file_path):
-		os.remove(file_path)
-		print(f"Deleted old {file_name}")
-
-file_names = ["make_coherence.py", "make_image_gradients.py", "make_orientation.py", "make_structure_tensor_2d.py", "make_vxvy.py", "TestImage.tif"]
-
-for file_name in file_names:
-	check_and_delete(file_name)
-
-print()
-
-#######################################################################################################
-
-def download_file(url):
-	"""
-	Download a file from the specified URL.
-	:param url: The URL of the file to download.
-	:param proxy: (optional) The proxy to use for the download.
-	"""
-	# specify the file name
-	file_name = url.split("/")[-1]
-	try:
-		# download the file and save it to a local file
-		urllib.request.urlretrieve(url, file_name)
-		print(f"Latest {file_name} fetched successfully")
-	except urllib.error.HTTPError as e:
-		print(f"HTTP Error: {e.code} {e.reason}")
-
-base_url = "https://raw.githubusercontent.com/ajinkya-kulkarni/PyTextureAnalysis/main/"
-
-for file_name in file_names:
-	url = f"{base_url}{file_name}"
-	download_file(url)
-
-print()
 
 from make_coherence import *
 from make_image_gradients import *
