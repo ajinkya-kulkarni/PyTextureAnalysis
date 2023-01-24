@@ -1,9 +1,11 @@
-cff-version: 1.1.0
+cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 authors:
-  - family-names: Joe
-    given-names: Johnson
-    orcid: https://orcid.org/0000-0000-0000-0000
-title: ajinkya-kulkarni/PyTextureAnalysis: First publicly released version
-version: v1.0
+- family-names: "Kulkarni"
+  given-names: "Ajinkya"
+  orcid: "https://orcid.org/0000-0003-1423-3676"
+title: "PyTextureAnalysis"
+version: 1.0
+doi: 10.5281/zenodo.7562833
 date-released: 2023-01-23
+url: "https://github.com/ajinkya-kulkarni/PyTextureAnalysis"
