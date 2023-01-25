@@ -82,12 +82,14 @@ def main():
 	####################################################################################
 
 	raw_image = Image.open(uploaded_file)
+
+	if raw_image.mode != 'L':
+		raise ValueError("Invalid image format, expected 8-bit grayscale image but got {}".format(raw_image.mode))
+
 	raw_image = np.array(raw_image)
 
 	if len(raw_image.shape) != 2:
-		raise ValueError("The image is not 2D.")
-	if raw_image.dtype != 'uint8':
-		raise ValueError("The image is not 8-bit.")
+		raise ValueError("Invalid image format, expected 2D image but got {}D image".format(raw_image.shape))
 
 	####################################################################################
 
@@ -154,7 +156,7 @@ def main():
 
 	####################################################################################
 
-	fig, ax = plt.subplots(1, 3, figsize = (40, 10), sharex = True, sharey = True)
+	fig, ax = plt.subplots(1, 3, figsize = (40, 12), sharex = True, sharey = True)
 
 	im1 = ax[0].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
 
