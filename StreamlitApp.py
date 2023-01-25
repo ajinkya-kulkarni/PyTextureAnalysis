@@ -30,7 +30,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 PAD = 10
-FONTSIZE_TITLE = 12
+FONTSIZE_TITLE = 15
 
 import os
 import time
