@@ -59,7 +59,7 @@ image_bytes = BytesIO(image_data)
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
 FONTSIZE = 23
-DPI = 300
+DPI = 400
 FACTOR = 1.2
 
 # Title of the web app
@@ -97,7 +97,7 @@ def main():
 
 	####################################################################################
 
-	fig, ax = plt.subplots(1, 2, figsize = (25, 10), sharex = True, sharey = True)
+	fig, ax = plt.subplots(1, 2, figsize = (25, 10), dpi = DPI, sharex = True, sharey = True)
 
 	ax[0].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
 	ax[0].set_title('Uploaded Image', pad = 30, fontsize = FONTSIZE)
@@ -153,7 +153,7 @@ def main():
 
 	####################################################################################
 
-	fig, ax = plt.subplots(1, 3, figsize = (40, 12), sharex = True, sharey = True)
+	fig, ax = plt.subplots(1, 3, figsize = (40, 12), dpi = DPI, sharex = True, sharey = True)
 
 	im1 = ax[0].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
 
