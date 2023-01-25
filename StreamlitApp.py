@@ -60,9 +60,8 @@ image_bytes = BytesIO(image_data)
 
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
-FONTSIZE = 23
-DPI = 400
-FACTOR = 1.2
+FONTSIZE = 20
+DPI = 500
 
 # Title of the web app
 
@@ -77,27 +76,40 @@ with st.form(key = 'form1', clear_on_submit = False):
 	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed:", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
 
 	st.markdown("""---""")
-
-	st.caption('Image', unsafe_allow_html = False)
 	
 	left_column1, middle_column1, right_column1  = st.columns(3)
 
 	with left_column1:
-		st.caption('Image', unsafe_allow_html = False)
-		st.slider('Filter', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+		st.slider('Sigma for filtering the image', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
 		FilterKey = float(st.session_state['-FilterKey-'])
 
 	with middle_column1:
-		st.caption('Image', unsafe_allow_html = False)
-		st.slider('Local Sigma', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		st.slider('Local region of interest', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
 	with right_column1:
-		st.caption('Image', unsafe_allow_html = False)
 		st.slider('Threshold Value', min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
 		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
 
 	####################################################################################
+
+	left_column2, middle_column2, right_column2  = st.columns(3)
+
+	with left_column2:
+		st.slider('Spacing between the vectors', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
+		SpacingKey = int(st.session_state['-SpacingKey-'])
+
+	with middle_column2:
+		st.slider('Vector length', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
+		ScaleKey = int(st.session_state['-ScaleKey-'])
+
+	with right_column2:
+		st.slider('Transparency', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
+		AlphaKey = float(st.session_state['-AlphaKey-'])
+
+	####################################################################################
+
+	st.markdown("")
 
 	submitted = st.form_submit_button('Analyze')
 
@@ -142,14 +154,14 @@ with st.form(key = 'form1', clear_on_submit = False):
 		# fig, ax = plt.subplots(1, 2, figsize = (25, 10), dpi = DPI, sharex = True, sharey = True)
 
 		mosaic = "ab;cd"
-		fig = plt.figure(constrained_layout = True)
+		fig = plt.figure(constrained_layout = True, dpi = DPI)
 		ax = fig.subplot_mosaic(mosaic)
 
-		im1 = ax['a'].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
+		im = ax['a'].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
 
 		divider = make_axes_locatable(ax['a'])
-		cax = divider.append_axes("right", size="5%", pad = 0.2)
-		cbar = fig.colorbar(im1, cax = cax)
+		cax = divider.append_axes("right", size="5%", pad = 0.1)
+		cbar = fig.colorbar(im, cax = cax)
 
 		ax['a'].set_title('Uploaded Image')
 		ax['a'].set_xticks([])
@@ -157,11 +169,11 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		#########
 
-		ax['b'].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
+		im = ax['b'].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
 
 		divider = make_axes_locatable(ax['b'])
-		cax = divider.append_axes("right", size="5%", pad = 0.2)
-		cbar = fig.colorbar(im1, cax = cax)
+		cax = divider.append_axes("right", size="5%", pad = 0.1)
+		cbar = fig.colorbar(im, cax = cax)
 
 		ax['b'].set_title('Filtered Image')
 		ax['b'].set_xticks([])
@@ -169,11 +181,11 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		#########
 
-		im1 = ax['c'].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
+		im = ax['c'].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
 
 		divider = make_axes_locatable(ax['c'])
-		cax = divider.append_axes("right", size="5%", pad = 0.2)
-		cbar = fig.colorbar(im1, cax = cax, ticks = np.linspace(0, 1, 5))
+		cax = divider.append_axes("right", size="5%", pad = 0.1)
+		cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
 		cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'])
 
 		ax['c'].set_title('Coherance')
@@ -182,11 +194,11 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		#########
 
-		im2 = ax['d'].imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
+		im = ax['d'].imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
 
 		divider = make_axes_locatable(ax['d'])
-		cax = divider.append_axes("right", size="5%", pad=0.2)
-		cbar = fig.colorbar(im2, cax = cax, ticks = np.linspace(0, 1, 5))
+		cax = divider.append_axes("right", size="5%", pad=0.1)
+		cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
 		cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
 
 		ax['d'].set_title('Orientation')
@@ -195,69 +207,24 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		st.pyplot(fig)
 
+		#########
+
+		fig = plt.figure(constrained_layout = True, dpi = DPI)
+
+		plt.imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
+
+		xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
+
+		plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
+		scale = ScaleKey, headlength = 0, headaxislength = 0, 
+		pivot = 'middle', color = 'k', angles = 'xy')
+
+		plt.title('Local Orientation')
+		plt.xticks([])
+		plt.yticks([])
+
+		st.pyplot(fig)
+
 		########################################################################
 
 		st.stop()
-
-
-
-	st.markdown("""---""")
-
-	st.caption('Sheet Width must be more than 0%', unsafe_allow_html = False)
-
-	left_column2, middle_column2, right_column2  = st.columns(3)
-
-	with left_column2:
-		st.caption('Image', unsafe_allow_html = False)
-		st.slider('Spacing', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
-		SpacingKey = int(st.session_state['-SpacingKey-'])
-
-	with middle_column2:
-		st.caption('Image', unsafe_allow_html = False)
-		st.slider('Scale', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
-		ScaleKey = int(st.session_state['-ScaleKey-'])
-
-	with right_column2:
-		st.caption('Image', unsafe_allow_html = False)
-		st.slider('Alpha', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
-		AlphaKey = float(st.session_state['-AlphaKey-'])
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-	# im3 = ax[2].imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
-
-	# xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
-
-	# ax[2].quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], 
-	# 			xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
-	# 			vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], 
-	# 			vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
-	# 			scale = ScaleKey, headlength = 0, headaxislength = 0, 
-	# 			pivot = 'middle', color = 'k', angles = 'xy')
-
-	# ax[2].set_title('Local Orientation', pad = 30, fontsize = FACTOR*FONTSIZE)
-	# ax[2].set_xticks([])
-	# ax[2].set_yticks([])
-
-	# divider = make_axes_locatable(ax[2])
-	# cax = divider.append_axes("right", size="5%", pad=0.4)
-	# cax.remove()
-
-	# fig.tight_layout()
-	# st.pyplot(fig)
