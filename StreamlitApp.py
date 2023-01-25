@@ -28,7 +28,8 @@ import skimage as skimage
 from PIL import Image
 
 import matplotlib.pyplot as plt
-plt.rcParams.update({'font.size': 8})
+FONTSIZE = 5
+plt.rcParams.update({'font.size': FONTSIZE})
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import os
@@ -60,8 +61,7 @@ image_bytes = BytesIO(image_data)
 
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
-FONTSIZE = 20
-DPI = 500
+DPI = 300
 
 # Title of the web app
 
@@ -112,8 +112,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 	st.markdown("")
 
 	submitted = st.form_submit_button('Analyze')
-
-	st.markdown("""---""")
 
 	####################################################################################
 
@@ -211,13 +209,13 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		fig = plt.figure(constrained_layout = True, dpi = DPI)
 
-		plt.imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
+		plt.imshow(raw_image, cmap = 'gray', alpha = AlphaKey)
 
 		xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
 
 		plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
 		scale = ScaleKey, headlength = 0, headaxislength = 0, 
-		pivot = 'middle', color = 'k', angles = 'xy')
+		pivot = 'middle', color = 'cyan', angles = 'xy')
 
 		plt.title('Local Orientation')
 		plt.xticks([])
