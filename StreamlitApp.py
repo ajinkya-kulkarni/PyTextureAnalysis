@@ -58,7 +58,7 @@ image_bytes = BytesIO(image_data)
 
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
-FONTSIZE = 22
+FONTSIZE = 23
 DPI = 300
 FACTOR = 1.2
 
@@ -114,10 +114,8 @@ def main():
 	ax[1].set_xticks([])
 	ax[1].set_yticks([])
 
-	plt.savefig('image1.png', dpi = DPI, bbox_inches = 'tight')
-	plt.close()
-
-	st.image('image1.png', use_column_width = True)
+	fig.tight_layout()
+	st.pyplot(fig, use_column_width = True)
 
 	####################################################################################
 
@@ -207,17 +205,10 @@ def main():
 	cax = divider.append_axes("right", size="5%", pad=0.4)
 	cax.remove()
 
-	plt.savefig('image2.png', dpi = DPI, bbox_inches = 'tight')
-	plt.close()
-
-	st.image('image2.png', use_column_width = True)
+	fig.tight_layout()
+	st.pyplot(fig, use_column_width = True)
 
 	########################################################################
-
-	st.markdown("")
-
-	os.remove('image1.png')
-	os.remove('image2.png')
 
 	st.stop()
 
