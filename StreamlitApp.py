@@ -74,10 +74,10 @@ def main():
 
 	uploaded_file = st.file_uploader("Upload an image to be analyzed:", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
 
+	st.markdown("""---""")
+
 	if uploaded_file is None:		
 		st.stop()
-
-	st.markdown("""---""")
 
 	####################################################################################
 
