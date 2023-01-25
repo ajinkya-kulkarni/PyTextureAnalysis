@@ -115,7 +115,7 @@ def main():
 	ax[1].set_yticks([])
 
 	fig.tight_layout()
-	st.pyplot(fig, use_column_width = True)
+	st.pyplot(fig)
 
 	####################################################################################
 
@@ -206,7 +206,7 @@ def main():
 	cax.remove()
 
 	fig.tight_layout()
-	st.pyplot(fig, use_column_width = True)
+	st.pyplot(fig)
 
 	########################################################################
 
