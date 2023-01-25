@@ -72,7 +72,7 @@ st.markdown("")
 
 def main():
 
-	uploaded_file = st.file_uploader("Upload an 8 bit grayscale image to be analyzed:", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
+	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed:", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
 
 	st.markdown("""---""")
 
@@ -90,8 +90,40 @@ def main():
 
 	####################################################################################
 
-	st.slider('Filter', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
-	FilterKey = float(st.session_state['-FilterKey-'])
+	left_column1, middle_column1, right_column1  = st.columns(3)
+
+	with left_column1:
+		st.slider('Filter', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+		FilterKey = float(st.session_state['-FilterKey-'])
+
+	with middle_column1:
+
+		st.slider('Local Sigma', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
+
+	with right_column1:
+		st.slider('Threshold Value', min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
+		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
+
+	left_column2, middle_column2, right_column2  = st.columns(3)
+
+	with left_column2:
+		st.slider('Spacing', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
+		SpacingKey = int(st.session_state['-SpacingKey-'])
+
+	with middle_column2:
+		st.slider('Scale', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
+		ScaleKey = int(st.session_state['-ScaleKey-'])
+
+	with right_column2:
+		st.slider('Alpha', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
+		AlphaKey = float(st.session_state['-AlphaKey-'])
+
+	####################################################################################
+
+	st.markdown("")
+
+	####################################################################################
 
 	filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
 
@@ -118,23 +150,6 @@ def main():
 
 	####################################################################################
 
-	st.slider('Local Sigma', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
-	LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
-
-	st.slider('Threshold Value', min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
-	ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
-
-	st.slider('Spacing', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
-	SpacingKey = int(st.session_state['-SpacingKey-'])
-
-	st.slider('Scale', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
-	ScaleKey = int(st.session_state['-ScaleKey-'])
-
-	st.slider('Alpha', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
-	AlphaKey = float(st.session_state['-AlphaKey-'])
-
-	####################################################################################
-
 	try:
 
 		image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
@@ -145,7 +160,7 @@ def main():
 
 		Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
 
-		vx, vy = make_vx_vy(filtered_image, EigenVectors, ThresholdValueKey)
+		vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
 
 	except:
 

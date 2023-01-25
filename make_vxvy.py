@@ -22,7 +22,7 @@
 
 import numpy as np
 
-def make_vx_vy(input_image, eigenvectors, threshold_value):
+def make_vxvy(input_image, eigenvectors, threshold_value):
 	"""
 	Extracts the x and y components of the first eigenvector from the eigenvectors array.
 
