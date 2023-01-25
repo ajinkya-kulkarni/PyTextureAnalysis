@@ -26,7 +26,9 @@ import numpy as np
 import cv2 as cv
 import skimage as skimage
 from PIL import Image
+
 import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 8})
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import os
@@ -70,16 +72,41 @@ st.markdown("")
 
 ########################################################################################
 
-def main():
+with st.form(key = 'form1', clear_on_submit = False):
 
 	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed:", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
 
 	st.markdown("""---""")
 
-	if uploaded_file is None:
-		st.stop()
+	st.caption('Image', unsafe_allow_html = False)
+	
+	left_column1, middle_column1, right_column1  = st.columns(3)
+
+	with left_column1:
+		st.caption('Image', unsafe_allow_html = False)
+		st.slider('Filter', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+		FilterKey = float(st.session_state['-FilterKey-'])
+
+	with middle_column1:
+		st.caption('Image', unsafe_allow_html = False)
+		st.slider('Local Sigma', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
+
+	with right_column1:
+		st.caption('Image', unsafe_allow_html = False)
+		st.slider('Threshold Value', min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
+		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
 
 	####################################################################################
+
+	submitted = st.form_submit_button('Analyze')
+
+	st.markdown("""---""")
+
+	####################################################################################
+
+	if uploaded_file is None:
+		st.stop()
 
 	raw_image_from_pillow = Image.open(uploaded_file)
 
@@ -90,137 +117,84 @@ def main():
 
 	####################################################################################
 
-	left_column1, middle_column1, right_column1  = st.columns(3)
+	if submitted:
 
-	with left_column1:
-		st.slider('Filter', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
-		FilterKey = float(st.session_state['-FilterKey-'])
+		try:
+			
+			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
 
-	with middle_column1:
+			image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
 
-		st.slider('Local Sigma', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
-		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
+			Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
 
-	with right_column1:
-		st.slider('Threshold Value', min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
-		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
+			Image_Coherance = make_coherence(filtered_image, EigenValues, ThresholdValueKey)
 
-	left_column2, middle_column2, right_column2  = st.columns(3)
+			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
 
-	with left_column2:
-		st.slider('Spacing', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
-		SpacingKey = int(st.session_state['-SpacingKey-'])
+			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
 
-	with middle_column2:
-		st.slider('Scale', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
-		ScaleKey = int(st.session_state['-ScaleKey-'])
+		except:
 
-	with right_column2:
-		st.slider('Alpha', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
-		AlphaKey = float(st.session_state['-AlphaKey-'])
+			raise Exception('Something went wrong in the analysis')
 
-	####################################################################################
+		####################################################################################
 
-	st.markdown("")
+		# fig, ax = plt.subplots(1, 2, figsize = (25, 10), dpi = DPI, sharex = True, sharey = True)
 
-	####################################################################################
+		mosaic = "ab;cd"
+		fig = plt.figure(constrained_layout = True)
+		ax = fig.subplot_mosaic(mosaic)
 
-	filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
+		im1 = ax['a'].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
 
-	####################################################################################
+		divider = make_axes_locatable(ax['a'])
+		cax = divider.append_axes("right", size="5%", pad = 0.2)
+		cbar = fig.colorbar(im1, cax = cax)
 
-	fig, ax = plt.subplots(1, 2, figsize = (25, 10), dpi = DPI, sharex = True, sharey = True)
+		ax['a'].set_title('Uploaded Image')
+		ax['a'].set_xticks([])
+		ax['a'].set_yticks([])
 
-	ax[0].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
-	ax[0].set_title('Uploaded Image', pad = 30, fontsize = FONTSIZE)
-	ax[0].set_xticks([])
-	ax[0].set_yticks([])
+		#########
 
-	ax[1].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
-	ax[1].set_title('Filtered Image', pad = 30, fontsize = FONTSIZE)
-	ax[1].set_xticks([])
-	ax[1].set_yticks([])
+		ax['b'].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
 
-	fig.tight_layout()
-	st.pyplot(fig)
+		divider = make_axes_locatable(ax['b'])
+		cax = divider.append_axes("right", size="5%", pad = 0.2)
+		cbar = fig.colorbar(im1, cax = cax)
 
-	####################################################################################
+		ax['b'].set_title('Filtered Image')
+		ax['b'].set_xticks([])
+		ax['b'].set_yticks([])
 
-	st.markdown("")
+		#########
 
-	####################################################################################
+		im1 = ax['c'].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
 
-	try:
+		divider = make_axes_locatable(ax['c'])
+		cax = divider.append_axes("right", size="5%", pad = 0.2)
+		cbar = fig.colorbar(im1, cax = cax, ticks = np.linspace(0, 1, 5))
+		cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'])
 
-		image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
+		ax['c'].set_title('Coherance')
+		ax['c'].set_xticks([])
+		ax['c'].set_yticks([])
 
-		Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+		#########
 
-		Image_Coherance = make_coherence(filtered_image, EigenValues, ThresholdValueKey)
+		im2 = ax['d'].imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
 
-		Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
+		divider = make_axes_locatable(ax['d'])
+		cax = divider.append_axes("right", size="5%", pad=0.2)
+		cbar = fig.colorbar(im2, cax = cax, ticks = np.linspace(0, 1, 5))
+		cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
 
-		vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
+		ax['d'].set_title('Orientation')
+		ax['d'].set_xticks([])
+		ax['d'].set_yticks([])
 
-	except:
+		st.pyplot(fig)
 
-		raise Exception('Something went wrong in the analysis')
+		########################################################################
 
-	####################################################################################
-
-	fig, ax = plt.subplots(1, 3, figsize = (40, 12), dpi = DPI, sharex = True, sharey = True)
-
-	im1 = ax[0].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
-
-	divider = make_axes_locatable(ax[0])
-	cax = divider.append_axes("right", size="5%", pad = 0.4)
-	cbar = fig.colorbar(im1, cax = cax, ticks = np.linspace(0, 1, 5))
-	cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'], fontsize = FACTOR*FONTSIZE)
-
-	ax[0].set_title('Coherance', pad = 30, fontsize = FACTOR*FONTSIZE)
-	ax[0].set_xticks([])
-	ax[0].set_yticks([])
-
-	##################
-
-	im2 = ax[1].imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
-
-	divider = make_axes_locatable(ax[1])
-	cax = divider.append_axes("right", size="5%", pad=0.4)
-	cbar = fig.colorbar(im2, cax = cax, ticks = np.linspace(0, 1, 5))
-	cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'], fontsize = FACTOR*FONTSIZE)
-
-	ax[1].set_title('Orientation', pad = 30, fontsize = FACTOR*FONTSIZE)
-	ax[1].set_xticks([])
-	ax[1].set_yticks([])
-
-	##################
-
-	im3 = ax[2].imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
-
-	xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
-
-	ax[2].quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], 
-				xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
-				vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], 
-				vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
-				scale = ScaleKey, headlength = 0, headaxislength = 0, 
-				pivot = 'middle', color = 'k', angles = 'xy')
-
-	ax[2].set_title('Local Orientation', pad = 30, fontsize = FACTOR*FONTSIZE)
-	ax[2].set_xticks([])
-	ax[2].set_yticks([])
-
-	divider = make_axes_locatable(ax[2])
-	cax = divider.append_axes("right", size="5%", pad=0.4)
-	cax.remove()
-
-	fig.tight_layout()
-	st.pyplot(fig)
-
-	########################################################################
-
-	st.stop()
-
-if __name__== "__main__":
-	main()
+		st.stop()
