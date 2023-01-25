@@ -28,9 +28,9 @@ import skimage as skimage
 from PIL import Image
 
 import matplotlib.pyplot as plt
-FONTSIZE = 5
-plt.rcParams.update({'font.size': FONTSIZE})
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+PAD = 10
+FONTSIZE_TITLE = 12
 
 import os
 import time
@@ -61,7 +61,7 @@ image_bytes = BytesIO(image_data)
 
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
-DPI = 300
+DPI = 500
 
 # Title of the web app
 
@@ -152,16 +152,17 @@ with st.form(key = 'form1', clear_on_submit = False):
 		# fig, ax = plt.subplots(1, 2, figsize = (25, 10), dpi = DPI, sharex = True, sharey = True)
 
 		mosaic = "ab;cd"
-		fig = plt.figure(constrained_layout = True, dpi = DPI)
+		fig = plt.figure(figsize = (15, 10), constrained_layout = True, dpi = DPI)
 		ax = fig.subplot_mosaic(mosaic)
 
 		im = ax['a'].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
 
 		divider = make_axes_locatable(ax['a'])
-		cax = divider.append_axes("right", size="5%", pad = 0.1)
+		cax = divider.append_axes("right", size="5%", pad = 0.3)
 		cbar = fig.colorbar(im, cax = cax)
-
-		ax['a'].set_title('Uploaded Image')
+		cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+ 
+		ax['a'].set_title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 		ax['a'].set_xticks([])
 		ax['a'].set_yticks([])
 
@@ -170,10 +171,11 @@ with st.form(key = 'form1', clear_on_submit = False):
 		im = ax['b'].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
 
 		divider = make_axes_locatable(ax['b'])
-		cax = divider.append_axes("right", size="5%", pad = 0.1)
+		cax = divider.append_axes("right", size="5%", pad = 0.3)
 		cbar = fig.colorbar(im, cax = cax)
+		cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
-		ax['b'].set_title('Filtered Image')
+		ax['b'].set_title('Filtered Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 		ax['b'].set_xticks([])
 		ax['b'].set_yticks([])
 
@@ -182,11 +184,13 @@ with st.form(key = 'form1', clear_on_submit = False):
 		im = ax['c'].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
 
 		divider = make_axes_locatable(ax['c'])
-		cax = divider.append_axes("right", size="5%", pad = 0.1)
+		cax = divider.append_axes("right", size="5%", pad = 0.3)
 		cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
 		cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'])
+		ticklabs = cbar.ax.get_yticklabels()
+		cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
 
-		ax['c'].set_title('Coherance')
+		ax['c'].set_title('Coherance', pad = PAD, fontsize = FONTSIZE_TITLE)
 		ax['c'].set_xticks([])
 		ax['c'].set_yticks([])
 
@@ -195,11 +199,13 @@ with st.form(key = 'form1', clear_on_submit = False):
 		im = ax['d'].imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
 
 		divider = make_axes_locatable(ax['d'])
-		cax = divider.append_axes("right", size="5%", pad=0.1)
+		cax = divider.append_axes("right", size="5%", pad=0.3)
 		cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
 		cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
+		ticklabs = cbar.ax.get_yticklabels()
+		cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
 
-		ax['d'].set_title('Orientation')
+		ax['d'].set_title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 		ax['d'].set_xticks([])
 		ax['d'].set_yticks([])
 
@@ -207,7 +213,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		#########
 
-		fig = plt.figure(constrained_layout = True, dpi = DPI)
+		fig = plt.figure(figsize = (15, 10), constrained_layout = True, dpi = DPI)
 
 		plt.imshow(raw_image, cmap = 'gray', alpha = AlphaKey)
 
@@ -217,7 +223,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 		scale = ScaleKey, headlength = 0, headaxislength = 0, 
 		pivot = 'middle', color = 'cyan', angles = 'xy')
 
-		plt.title('Local Orientation')
+		plt.title('Local Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 		plt.xticks([])
 		plt.yticks([])
 
