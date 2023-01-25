@@ -72,21 +72,18 @@ st.markdown("")
 
 def main():
 
-	uploaded_file = st.file_uploader("Upload an image to be analyzed:", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
+	uploaded_file = st.file_uploader("Upload an 8 bit grayscale image to be analyzed:", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
 
 	st.markdown("""---""")
 
-	if uploaded_file is None:		
+	if uploaded_file is None:
 		st.stop()
 
 	####################################################################################
 
-	raw_image = Image.open(uploaded_file)
+	raw_image_from_pillow = Image.open(uploaded_file)
 
-	if raw_image.mode != 'L':
-		raise ValueError("Invalid image format, expected 8-bit grayscale image but got {}".format(raw_image.mode))
-
-	raw_image = np.array(raw_image)
+	raw_image = np.array(raw_image_from_pillow)
 
 	if len(raw_image.shape) != 2:
 		raise ValueError("Invalid image format, expected 2D image but got {}D image".format(raw_image.shape))
