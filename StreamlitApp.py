@@ -198,3 +198,66 @@ with st.form(key = 'form1', clear_on_submit = False):
 		########################################################################
 
 		st.stop()
+
+
+
+	st.markdown("""---""")
+
+	st.caption('Sheet Width must be more than 0%', unsafe_allow_html = False)
+
+	left_column2, middle_column2, right_column2  = st.columns(3)
+
+	with left_column2:
+		st.caption('Image', unsafe_allow_html = False)
+		st.slider('Spacing', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
+		SpacingKey = int(st.session_state['-SpacingKey-'])
+
+	with middle_column2:
+		st.caption('Image', unsafe_allow_html = False)
+		st.slider('Scale', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
+		ScaleKey = int(st.session_state['-ScaleKey-'])
+
+	with right_column2:
+		st.caption('Image', unsafe_allow_html = False)
+		st.slider('Alpha', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
+		AlphaKey = float(st.session_state['-AlphaKey-'])
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	# im3 = ax[2].imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
+
+	# xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
+
+	# ax[2].quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], 
+	# 			xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
+	# 			vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], 
+	# 			vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
+	# 			scale = ScaleKey, headlength = 0, headaxislength = 0, 
+	# 			pivot = 'middle', color = 'k', angles = 'xy')
+
+	# ax[2].set_title('Local Orientation', pad = 30, fontsize = FACTOR*FONTSIZE)
+	# ax[2].set_xticks([])
+	# ax[2].set_yticks([])
+
+	# divider = make_axes_locatable(ax[2])
+	# cax = divider.append_axes("right", size="5%", pad=0.4)
+	# cax.remove()
+
+	# fig.tight_layout()
+	# st.pyplot(fig)
