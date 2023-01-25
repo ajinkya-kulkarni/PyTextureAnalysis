@@ -123,10 +123,10 @@ def main():
 
 	####################################################################################
 
-	st.slider('Local Sigma', min_value = 1, max_value = 20, value = 5, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+	st.slider('Local Sigma', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
 	LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
-	st.slider('Threshold Value', min_value = 5, max_value = 200, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
+	st.slider('Threshold Value', min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
 	ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
 
 	st.slider('Spacing', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
@@ -135,7 +135,7 @@ def main():
 	st.slider('Scale', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
 	ScaleKey = int(st.session_state['-ScaleKey-'])
 
-	st.slider('Alpha', min_value = 0.1, max_value = 1.0, value = 0.5, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
+	st.slider('Alpha', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
 	AlphaKey = float(st.session_state['-AlphaKey-'])
 
 	####################################################################################
