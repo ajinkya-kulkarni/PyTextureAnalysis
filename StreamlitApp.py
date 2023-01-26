@@ -80,7 +80,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 	left_column1, middle_column1, right_column1  = st.columns(3)
 
 	with left_column1:
-		st.slider('Gaussian filter sigma (pixels)', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+		st.slider('Gaussian image filter sigma (pixels)', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
 		FilterKey = float(st.session_state['-FilterKey-'])
 
 	with middle_column1:
