@@ -84,11 +84,11 @@ with st.form(key = 'form1', clear_on_submit = False):
 		FilterKey = float(st.session_state['-FilterKey-'])
 
 	with middle_column1:
-		st.slider('Gaussian local window (pixels)', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		st.slider('Gaussian local window (pixels)', min_value = 2, max_value = 50, value = 10, step = 2, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
 	with right_column1:
-		st.slider('Threshold value for pixel evaluation (pixels)' , min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
+		st.slider('Threshold value for pixel evaluation (pixels)' , min_value = 5, max_value = 200, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
 		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
 
 	####################################################################################
