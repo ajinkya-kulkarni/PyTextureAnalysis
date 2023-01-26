@@ -73,22 +73,22 @@ st.markdown("")
 
 with st.form(key = 'form1', clear_on_submit = False):
 
-	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed. Works best with images with the same XY dimension.", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
+	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed. Works best with images with the same XY dimension.", type=["tif", "tiff", "png", "jpg", "jpeg"], accept_multiple_files = False, label_visibility = 'visible')
 
 	st.markdown("""---""")
 	
 	left_column1, middle_column1, right_column1  = st.columns(3)
 
 	with left_column1:
-		st.slider('Sigma for filtering the image', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+		st.slider('Gaussian filter sigma (pixels)', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
 		FilterKey = float(st.session_state['-FilterKey-'])
 
 	with middle_column1:
-		st.slider('Local region of interest', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		st.slider('Gaussian local window (pixels)', min_value = 1, max_value = 20, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
 	with right_column1:
-		st.slider('Threshold Value', min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
+		st.slider('Threshold value for pixel evaluation (pixels)' , min_value = 5, max_value = 200, value = 40, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
 		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
 
 	####################################################################################
@@ -96,15 +96,15 @@ with st.form(key = 'form1', clear_on_submit = False):
 	left_column2, middle_column2, right_column2  = st.columns(3)
 
 	with left_column2:
-		st.slider('Spacing between the vectors', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
+		st.slider('Spacing between the orientation vectors', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
 		SpacingKey = int(st.session_state['-SpacingKey-'])
 
 	with middle_column2:
-		st.slider('Vector length', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
+		st.slider('Length of the orientation vectors', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
 		ScaleKey = int(st.session_state['-ScaleKey-'])
 
 	with right_column2:
-		st.slider('Transparency', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
+		st.slider('Alpha value for image transparency', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
 		AlphaKey = float(st.session_state['-AlphaKey-'])
 
 	####################################################################################
