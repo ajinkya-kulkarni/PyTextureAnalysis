@@ -73,7 +73,7 @@ st.markdown("")
 
 with st.form(key = 'form1', clear_on_submit = False):
 
-	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed:", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
+	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed. Works best with images with the same XY dimension.", type=["tif", "tiff"], accept_multiple_files = False, label_visibility = 'visible')
 
 	st.markdown("""---""")
 	
