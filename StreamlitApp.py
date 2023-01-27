@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#######################################################################################################
+########################################################################################
 
 import streamlit as st
 
@@ -44,7 +44,7 @@ sys.dont_write_bytecode = True
 # Print exception without the buit-in python warning
 sys.tracebacklimit = 0 
 
-#######################################################################################################
+########################################################################################
 
 from make_coherence import *
 from make_image_gradients import *
@@ -52,7 +52,7 @@ from make_orientation import *
 from make_structure_tensor_2d import *
 from make_vxvy import *
 
-#######################################################################################################
+########################################################################################
 
 with open("logo.jpg", "rb") as f:
 	image_data = f.read()
@@ -65,7 +65,7 @@ DPI = 500
 
 # Title of the web app
 
-st.title(':blue[Application for demonstrating the PyTextureAnalysis package]')
+st.title(':blue[Texture analysis using PyTextureAnalysis]')
 
 st.markdown("")
 
