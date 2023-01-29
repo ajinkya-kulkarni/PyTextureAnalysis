@@ -66,7 +66,7 @@ DPI = 500
 # Title of the web app
 
 st.title(':blue[Texture analysis using PyTextureAnalysis]')
-st.caption('For more information, visit https://github.com/ajinkya-kulkarni/PyTextureAnalysis', unsafe_allow_html = False)
+st.caption('For more information or to give feedback, visit https://github.com/ajinkya-kulkarni/PyTextureAnalysis', unsafe_allow_html = False)
 
 st.markdown("")
 
