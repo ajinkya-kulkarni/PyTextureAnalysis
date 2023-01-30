@@ -28,9 +28,7 @@ import skimage as skimage
 from PIL import Image
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-PAD = 10
-FONTSIZE_TITLE = 13
+from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 import os
 import time
@@ -61,14 +59,18 @@ image_bytes = BytesIO(image_data)
 
 st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, layout = "wide", initial_sidebar_state = "expanded", menu_items = {'Get help': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'Report a bug': 'mailto:ajinkya.kulkarni@mpinat.mpg.de', 'About': 'This is a application for demonstrating the PyTextureAnalysis package. Developed, tested and maintained by Ajinkya Kulkarni: https://github.com/ajinkya-kulkarni at the MPI-NAT, Goettingen'})
 
-DPI = 500
-
 # Title of the web app
 
 st.title(':blue[Texture analysis using PyTextureAnalysis]')
 st.caption('For more information or to give feedback, visit https://github.com/ajinkya-kulkarni/PyTextureAnalysis', unsafe_allow_html = False)
 
 st.markdown("")
+
+########################################################################################
+
+PAD = 10
+FONTSIZE_TITLE = 15
+DPI = 500
 
 ########################################################################################
 
@@ -124,7 +126,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 	raw_image = np.array(raw_image_from_pillow)
 
 	if len(raw_image.shape) != 2:
-		raise ValueError("Invalid image format, expected 2D image but got {}D image".format(raw_image.shape))
+		raise ValueError("Invalid image format")
 
 	####################################################################################
 
@@ -150,85 +152,119 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		####################################################################################
 
-		mosaic = "ab;cd"
-		fig = plt.figure(figsize = (15, 10), constrained_layout = True, dpi = 2*DPI)
-		ax = fig.subplot_mosaic(mosaic)
+		FIGSIZE = (6, 6)
 
-		im = ax['a'].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
-
-		divider = make_axes_locatable(ax['a'])
-		cax = divider.append_axes("right", size="5%", pad = 0.3)
-		cbar = fig.colorbar(im, cax = cax)
-		cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-
-		ax['a'].set_title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
-		ax['a'].set_xticks([])
-		ax['a'].set_yticks([])
-
-		#########
-
-		im = ax['b'].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
-
-		divider = make_axes_locatable(ax['b'])
-		cax = divider.append_axes("right", size="5%", pad = 0.3)
-		cbar = fig.colorbar(im, cax = cax)
-		cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-
-		ax['b'].set_title('Filtered Image', pad = PAD, fontsize = FONTSIZE_TITLE)
-		ax['b'].set_xticks([])
-		ax['b'].set_yticks([])
-
-		#########
-
-		im = ax['c'].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
-
-		divider = make_axes_locatable(ax['c'])
-		cax = divider.append_axes("right", size="5%", pad = 0.3)
-		cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
-		cbar.ax.set_yticklabels([r'$0$', r'$0.25$', r'$0.5$', r'$0.75$', r'$1$'])
-		ticklabs = cbar.ax.get_yticklabels()
-		cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
-
-		ax['c'].set_title('Coherance', pad = PAD, fontsize = FONTSIZE_TITLE)
-		ax['c'].set_xticks([])
-		ax['c'].set_yticks([])
-
-		#########
-
-		im = ax['d'].imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
-
-		divider = make_axes_locatable(ax['d'])
-		cax = divider.append_axes("right", size="5%", pad=0.3)
-		cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
-		cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
-		ticklabs = cbar.ax.get_yticklabels()
-		cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
-
-		ax['d'].set_title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
-		ax['d'].set_xticks([])
-		ax['d'].set_yticks([])
-
-		fig.subplots_adjust(hspace = 0.5)
-		
-		st.pyplot(fig)
-
-		#########
-
-		st.markdown("")
-
-		st.markdown("")
-
-		#########
-
-		left_column3, middle_column3, right_column3  = st.columns(3)
+		left_column3, right_column3  = st.columns(2)
 
 		with left_column3:
+	
+			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
+			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
+
+			plt.title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.xticks([])
+			plt.yticks([])
+
+			aspect = 20
+			pad_fraction = 0.5
+
+			ax = plt.gca()
+			divider = make_axes_locatable(ax)
+			width = axes_size.AxesY(ax, aspect=1./aspect)
+			pad = axes_size.Fraction(pad_fraction, width)
+			cax = divider.append_axes("right", size=width, pad=pad)
+			cbar = plt.colorbar(im, cax=cax)
+			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+			st.pyplot(fig)
+
+		#########
+
+		with right_column3:
+
+			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
+			im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
+
+			plt.title('Filtered Image', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.xticks([])
+			plt.yticks([])
+
+			aspect = 20
+			pad_fraction = 0.5
+
+			ax = plt.gca()
+			divider = make_axes_locatable(ax)
+			width = axes_size.AxesY(ax, aspect=1./aspect)
+			pad = axes_size.Fraction(pad_fraction, width)
+			cax = divider.append_axes("right", size=width, pad=pad)
+			cbar = plt.colorbar(im, cax=cax)
+			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+			st.pyplot(fig)
+
+		#########
+
+		left_column4, right_column4 = st.columns(2)
+
+		with left_column4:
+
+			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
+			im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
+
+			plt.title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.xticks([])
+			plt.yticks([])
+
+			aspect = 20
+			pad_fraction = 0.5
+
+			ax = plt.gca()
+			divider = make_axes_locatable(ax)
+			width = axes_size.AxesY(ax, aspect=1./aspect)
+			pad = axes_size.Fraction(pad_fraction, width)
+			cax = divider.append_axes("right", size=width, pad=pad)
+			cbar = plt.colorbar(im, cax=cax)
+			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+			st.pyplot(fig)
+
+		#########
+
+		with right_column4:
+
+			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
+			im = plt.imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
+
+			plt.title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.xticks([])
+			plt.yticks([])
+
+			aspect = 20
+			pad_fraction = 0.5
+
+			ax = plt.gca()
+			divider = make_axes_locatable(ax)
+			width = axes_size.AxesY(ax, aspect=1./aspect)
+			pad = axes_size.Fraction(pad_fraction, width)
+			cax = divider.append_axes("right", size=width, pad=pad)
+			cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
+			cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
+			ticklabs = cbar.ax.get_yticklabels()
+			cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
+
+			st.pyplot(fig)
+
+		#########
+
+		left_column5, middle_column5, right_column5  = st.columns(3)
+
+		with left_column5:
 
 			st.markdown('')
 
-		with middle_column3:
+		with middle_column5:
 
-			fig = plt.figure(figsize = (12, 8), constrained_layout = True, dpi = DPI)
+			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
 			plt.imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
 
@@ -238,13 +274,13 @@ with st.form(key = 'form1', clear_on_submit = False):
 			scale = ScaleKey, headlength = 0, headaxislength = 0, 
 			pivot = 'middle', color = 'k', angles = 'xy')
 
-			plt.title('Local Orientation', pad = PAD, fontsize = 2.2*FONTSIZE_TITLE)
+			plt.title('Local Orientation', pad = PAD, fontsize = 1.3*FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
 
 			st.pyplot(fig)
 
-		with right_column3:
+		with right_column5:
 
 			st.markdown('')
 
