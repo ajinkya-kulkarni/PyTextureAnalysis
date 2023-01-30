@@ -30,7 +30,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 PAD = 10
-FONTSIZE_TITLE = 15
+FONTSIZE_TITLE = 13
 
 import os
 import time
@@ -150,10 +150,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		####################################################################################
 
-		# fig, ax = plt.subplots(1, 2, figsize = (25, 10), dpi = DPI, sharex = True, sharey = True)
-
 		mosaic = "ab;cd"
-		fig = plt.figure(figsize = (15, 10), constrained_layout = True, dpi = DPI)
+		fig = plt.figure(figsize = (15, 10), constrained_layout = True, dpi = 2*DPI)
 		ax = fig.subplot_mosaic(mosaic)
 
 		im = ax['a'].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
@@ -162,7 +160,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 		cax = divider.append_axes("right", size="5%", pad = 0.3)
 		cbar = fig.colorbar(im, cax = cax)
 		cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
- 
+
 		ax['a'].set_title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 		ax['a'].set_xticks([])
 		ax['a'].set_yticks([])
@@ -210,25 +208,45 @@ with st.form(key = 'form1', clear_on_submit = False):
 		ax['d'].set_xticks([])
 		ax['d'].set_yticks([])
 
+		fig.subplots_adjust(hspace = 0.5)
+		
 		st.pyplot(fig)
 
 		#########
 
-		fig = plt.figure(figsize = (15, 10), constrained_layout = True, dpi = DPI)
+		st.markdown("")
 
-		plt.imshow(raw_image, cmap = 'gray', alpha = AlphaKey)
+		st.markdown("")
 
-		xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
+		#########
 
-		plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
-		scale = ScaleKey, headlength = 0, headaxislength = 0, 
-		pivot = 'middle', color = 'cyan', angles = 'xy')
+		left_column3, middle_column3, right_column3  = st.columns(3)
 
-		plt.title('Local Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
-		plt.xticks([])
-		plt.yticks([])
+		with left_column3:
 
-		st.pyplot(fig)
+			st.markdown('')
+
+		with middle_column3:
+
+			fig = plt.figure(figsize = (12, 8), constrained_layout = True, dpi = DPI)
+
+			plt.imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
+
+			xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
+
+			plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
+			scale = ScaleKey, headlength = 0, headaxislength = 0, 
+			pivot = 'middle', color = 'k', angles = 'xy')
+
+			plt.title('Local Orientation', pad = PAD, fontsize = 2.2*FONTSIZE_TITLE)
+			plt.xticks([])
+			plt.yticks([])
+
+			st.pyplot(fig)
+
+		with right_column3:
+
+			st.markdown('')
 
 		########################################################################
 
