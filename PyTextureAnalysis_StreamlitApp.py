@@ -49,6 +49,8 @@ from make_image_gradients import *
 from make_orientation import *
 from make_structure_tensor_2d import *
 from make_vxvy import *
+from make_local_binarization import *
+from make_convolution import *
 
 ########################################################################################
 
@@ -145,6 +147,21 @@ with st.form(key = 'form1', clear_on_submit = False):
 			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
 
 			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
+
+			local_kernel_size = int(0.5*LocalSigmaKey)
+			if (local_kernel_size % 2 == 0):
+				local_kernel_size = local_kernel_size + 1
+			if (local_kernel_size < 3):
+				raise Exception('Increase the local kernel size')
+
+			# binarized_image = binarize_image_with_local_otsu(filtered_image, local_kernel_size)
+
+			from skimage.filters import threshold_mean
+			thresh = threshold_mean(filtered_image)
+			binarized_image = filtered_image > thresh
+
+			local_kernel = np.ones((local_kernel_size, local_kernel_size), dtype = np.float32) / (local_kernel_size * local_kernel_size)
+			Local_Coverage = convolve(binarized_image, local_kernel)
 
 		except:
 
@@ -256,17 +273,13 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		#########
 
-		left_column5, middle_column5, right_column5  = st.columns(3)
+		left_column5, right_column5  = st.columns(2)
 
 		with left_column5:
 
-			st.markdown('')
-
-		with middle_column5:
-
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			plt.imshow(raw_image, cmap = 'Oranges', alpha = AlphaKey)
+			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Oranges', alpha = AlphaKey)
 
 			xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
 
@@ -274,13 +287,75 @@ with st.form(key = 'form1', clear_on_submit = False):
 			scale = ScaleKey, headlength = 0, headaxislength = 0, 
 			pivot = 'middle', color = 'k', angles = 'xy')
 
-			plt.title('Local Orientation', pad = PAD, fontsize = 1.3*FONTSIZE_TITLE)
+			plt.title('Local Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
+
+			aspect = 20
+			pad_fraction = 0.5
+
+			ax = plt.gca()
+			divider = make_axes_locatable(ax)
+			width = axes_size.AxesY(ax, aspect=1./aspect)
+			pad = axes_size.Fraction(pad_fraction, width)
+			cax = divider.append_axes("right", size=width, pad=pad)
+			cbar = plt.colorbar(im, cax=cax)
+			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
 			st.pyplot(fig)
 
 		with right_column5:
+
+			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
+			im = plt.imshow(Local_Coverage, vmin = 0, cmap = 'jet')
+
+			plt.title('Local Coverage', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.xticks([])
+			plt.yticks([])
+
+			aspect = 20
+			pad_fraction = 0.5
+
+			ax = plt.gca()
+			divider = make_axes_locatable(ax)
+			width = axes_size.AxesY(ax, aspect=1./aspect)
+			pad = axes_size.Fraction(pad_fraction, width)
+			cax = divider.append_axes("right", size=width, pad=pad)
+			cbar = plt.colorbar(im, cax=cax)
+			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+			cbar.formatter.set_powerlimits((0, 0))
+			cbar.formatter.set_useMathText(True)
+
+			st.pyplot(fig)
+
+		#########
+
+		left_column6, right_column6  = st.columns(2)
+
+		with left_column6:
+
+			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
+			im = plt.imshow(binarized_image, vmin = 0, vmax = 1, cmap = 'gray_r')
+
+			plt.title('Binarized Image', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.xticks([])
+			plt.yticks([])
+
+			aspect = 20
+			pad_fraction = 0.5
+
+			ax = plt.gca()
+			divider = make_axes_locatable(ax)
+			width = axes_size.AxesY(ax, aspect=1./aspect)
+			pad = axes_size.Fraction(pad_fraction, width)
+			cax = divider.append_axes("right", size=width, pad=pad)
+			cbar = plt.colorbar(im, cax=cax)
+			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+			cbar.formatter.set_powerlimits((0, 0))
+
+			st.pyplot(fig)
+
+		with right_column6:
 
 			st.markdown('')
 

@@ -21,6 +21,7 @@
 #######################################################################################################
 
 from skimage import filters
+from skimage.util.shape import view_as_blocks
 import numpy as np
 
 def binarize_image_with_local_otsu(image, n):

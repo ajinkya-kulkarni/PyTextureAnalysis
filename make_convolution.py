@@ -20,8 +20,8 @@
 
 #######################################################################################################
 
+import cv2
 import numpy as np
-from scipy.ndimage import convolve
 
 def convolve(image, kernel):
 	"""
@@ -34,6 +34,10 @@ def convolve(image, kernel):
 	Returns:
 		np.ndarray: binary image after convolution
 	"""
+
+	# Convert the input image to a valid data type in OpenCV
+	image = np.array(image, dtype=np.float32)
+
 	# Get the shape of the image
 	i_h, i_w = image.shape
 
@@ -51,28 +55,12 @@ def convolve(image, kernel):
 	# Pad the image with the pixels along the edges
 	pad_h = int((k_h - 1) / 2)
 	pad_w = int((k_w - 1) / 2)
-	image = np.pad(image, ((pad_h, pad_h), (pad_w, pad_w)), 'edge')
+	image = cv2.copyMakeBorder(image, pad_h, pad_h, pad_w, pad_w, cv2.BORDER_CONSTANT, None, 0)
+
+	# Get the total number of elements in the kernel
+	total_elements = k_h * k_w
 
 	# Perform convolution
-	result = convolve(image, kernel, mode='nearest')
+	result = cv2.filter2D(image, -1, kernel / total_elements, borderType=cv2.BORDER_CONSTANT)
 
 	return result[pad_h:-pad_h, pad_w:-pad_w]
-
-# Example usage:
-
-# import numpy as np
-# from scipy.ndimage import convolve
-
-# # Create a binary image
-# image = np.array([[1, 1, 1, 0, 0],
-# 				[0, 1, 1, 0, 0],
-# 				[0, 0, 1, 1, 1]])
-
-# # Create a kernel
-# n = 11
-# kernel = np.ones((n, n))
-
-# # Perform convolution
-# result = convolve(image, kernel, mode='nearest')
-
-# print(result)
