@@ -21,6 +21,7 @@
 #######################################################################################################
 
 import numpy as np
+from scipy.ndimage import convolve
 
 def convolve(image, kernel):
 	"""
@@ -52,18 +53,7 @@ def convolve(image, kernel):
 	pad_w = int((k_w - 1) / 2)
 	image = np.pad(image, ((pad_h, pad_h), (pad_w, pad_w)), 'edge')
 
-	# Create a numpy array to store the result
-	result = np.zeros_like(image)
+	# Perform convolution
+	result = convolve(image, kernel, mode='nearest')
 
-	# Get the total number of elements in the kernel
-	total_elements = k_h * k_w
-
-	# Loop through the image
-	for i in range(pad_h, i_h + pad_h):
-		for j in range(pad_w, i_w + pad_w):
-			# Multiply the corresponding elements in the image and kernel
-			sub_img = image[i - pad_h: i + pad_h + 1, j - pad_w: j + pad_w + 1]
-			value = np.sum(np.multiply(sub_img, kernel)) / total_elements
-			result[i, j] = value
-
-	return result
+	return result[pad_h:-pad_h, pad_w:-pad_w]
