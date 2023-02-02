@@ -69,9 +69,8 @@ def convolve(image, kernel):
 # 				[0, 0, 1, 1, 1]])
 
 # # Create a kernel
-# kernel = np.array([[0, 1, 0],
-# 				[1, 1, 1],
-# 				[0, 1, 0]])
+# n = 11
+# kernel = np.ones((n, n))
 
 # # Perform convolution
 # result = convolve(image, kernel, mode='nearest')
