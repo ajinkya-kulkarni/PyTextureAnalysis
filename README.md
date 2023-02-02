@@ -22,3 +22,5 @@ The following dependencies must be installed:
 - opencv-python
 
 You can install these dependencies by first installing `Python` and then running the command: `pip install -r requirements.txt` in the terminal.
+
+![alt text](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp.png)
