@@ -22,12 +22,13 @@
 
 from scipy import ndimage
 
-def make_image_gradients(image):
+def make_image_gradients(image, filter=None):
 	"""
-	Calculates image gradients in x and y directions using Gaussian filters.
+	Calculates image gradients in x and y directions using filters chosen by the user.
 
 	Parameters:
 	image (numpy.ndarray): 2D array representing the input image.
+	filter (str): Filter type to be used, either 'sobel' or 'prewitt'
 
 	Returns:
 	tuple: Tuple containing 2D arrays representing gradient of the image in x and y directions respectively.
@@ -37,7 +38,14 @@ def make_image_gradients(image):
 	if len(image.shape) != 2:
 		raise ValueError("Input image must be a 2D array")
 
-	image_gradient_x = ndimage.sobel(image, axis=0)
-	image_gradient_y = ndimage.sobel(image, axis=1)
+	if filter == None or filter == 'sobel':
+		image_gradient_x = ndimage.sobel(image, axis=0)
+		image_gradient_y = ndimage.sobel(image, axis=1)
+
+	elif filter == 'prewitt':
+		image_gradient_x = ndimage.prewitt(image, axis=0)
+		image_gradient_y = ndimage.prewitt(image, axis=1)
+	else:
+		raise ValueError("Invalid filter type, choose either 'sobel' or 'prewitt'")
 
 	return image_gradient_x, image_gradient_y
