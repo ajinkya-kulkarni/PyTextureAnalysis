@@ -57,3 +57,23 @@ def convolve(image, kernel):
 	result = convolve(image, kernel, mode='nearest')
 
 	return result[pad_h:-pad_h, pad_w:-pad_w]
+
+# Example usage:
+
+# import numpy as np
+# from scipy.ndimage import convolve
+
+# # Create a binary image
+# image = np.array([[1, 1, 1, 0, 0],
+# 				[0, 1, 1, 0, 0],
+# 				[0, 0, 1, 1, 1]])
+
+# # Create a kernel
+# kernel = np.array([[0, 1, 0],
+# 				[1, 1, 1],
+# 				[0, 1, 0]])
+
+# # Perform convolution
+# result = convolve(image, kernel, mode='nearest')
+
+# print(result)
