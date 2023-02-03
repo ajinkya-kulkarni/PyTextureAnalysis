@@ -86,8 +86,10 @@ linewidth = 3
 ########################################################################################
 
 with st.form(key = 'form1', clear_on_submit = False):
+	
+	st.markdown(':blue[Upload a 2D grayscale image to be analyzed. Works best with images with the same X and Y dimensions.]')
 
-	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed. Works best with images with the same X and Y dimensions.", type=["tif", "tiff", "png", "jpg", "jpeg"], accept_multiple_files = False, label_visibility = 'visible')
+	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed. Works best with images with the same X and Y dimensions.", type=["tif", "tiff", "png", "jpg", "jpeg"], accept_multiple_files = False, label_visibility = 'collapsed')
 
 	st.markdown("""---""")
 	
