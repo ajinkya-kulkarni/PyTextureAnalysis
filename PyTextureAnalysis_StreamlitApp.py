@@ -49,7 +49,7 @@ from make_image_gradients import *
 from make_orientation import *
 from make_structure_tensor_2d import *
 from make_vxvy import *
-from make_local_binarization import *
+from make_binarization import *
 from make_convolution import *
 
 ########################################################################################
@@ -70,9 +70,13 @@ st.markdown("")
 
 ########################################################################################
 
+FIGSIZE = (8, 6)
 PAD = 10
 FONTSIZE_TITLE = 15
 DPI = 500
+
+aspect = 20
+pad_fraction = 0.5
 
 ########################################################################################
 
@@ -85,7 +89,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 	left_column1, middle_column1, right_column1  = st.columns(3)
 
 	with left_column1:
-		st.slider('Gaussian image filter sigma [pixels]', min_value = 0.1, max_value = 5.0, value = 1.0, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
+		st.slider('Gaussian image filter sigma [pixels]', min_value = 0.5, max_value = 5.0, value = 1.0, step = 0.5, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
 		FilterKey = float(st.session_state['-FilterKey-'])
 
 	with middle_column1:
@@ -93,7 +97,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
 	with right_column1:
-		st.slider('Threshold value for pixel evaluation [pixels]' , min_value = 5, max_value = 200, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
+		st.slider('Threshold value for pixel evaluation [pixels]' , min_value = 5, max_value = 200, value = 20, step = 5, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
 		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
 
 	####################################################################################
@@ -101,15 +105,15 @@ with st.form(key = 'form1', clear_on_submit = False):
 	left_column2, middle_column2, right_column2  = st.columns(3)
 
 	with left_column2:
-		st.slider('Spacing between the orientation vectors', min_value = 5, max_value = 50, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
+		st.slider('Spacing between the orientation vectors', min_value = 5, max_value = 50, value = 20, step = 5, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
 		SpacingKey = int(st.session_state['-SpacingKey-'])
 
 	with middle_column2:
-		st.slider('Length of the orientation vectors', min_value = 10, max_value = 100, value = 60, step = 1, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
+		st.slider('Scaling for the orientation vectors', min_value = 10, max_value = 100, value = 40, step = 5, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
 		ScaleKey = int(st.session_state['-ScaleKey-'])
 
 	with right_column2:
-		st.slider('Alpha value for image transparency', min_value = 0.1, max_value = 1.0, value = 0.7, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
+		st.slider('Alpha value for image transparency', min_value = 0.1, max_value = 1.0, value = 0.6, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
 		AlphaKey = float(st.session_state['-AlphaKey-'])
 
 	####################################################################################
@@ -139,56 +143,69 @@ with st.form(key = 'form1', clear_on_submit = False):
 			# Filter the image
 			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
 
-			# Calculate image gradients in X and Y directions
-			image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
+			###########################
 
-			# Calculate the structure tensor and solve for EigenValues, EigenVectors
-			Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+			# Calculate local density by binarizing the image first (using simple mean thresholding), then convoluting it with a nxn kernel of ones. 
+			# Currently the kernel size is equal to the local window used for calculating coherence and orientation.
+			# Please refer to: https://opg.optica.org/oe/fulltext.cfm?uri=oe-30-14-25718&id=477526 for more information.
 
-			# Calculate Coherence
-			Image_Coherance = make_coherence(filtered_image, EigenValues, ThresholdValueKey)
+			# Binarize the image
+			binarized_image = binarize_image(filtered_image)
 
-			# Calculate Orientation
-			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
-			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
-
-			# Calculate local density by binarizing the image first, then convoluting it with a nxn kernel of ones. Refer to: https://opg.optica.org/oe/fulltext.cfm?uri=oe-30-14-25718&id=477526
-
-			local_kernel_size = int(LocalSigmaKey)
+			# Define the kernel and it's size
+			local_kernel_size = LocalSigmaKey
 			if (local_kernel_size % 2 == 0):
 				local_kernel_size = local_kernel_size + 1
 			if (local_kernel_size < 3):
-				raise Exception('Increase the local kernel size')
-
-			from scipy.ndimage import median_filter
-			median_filtered_image = median_filter(raw_image, size=local_kernel_size)
-			binarized_image = binarize_image_with_local_otsu(median_filtered_image, local_kernel_size)
+				raise Exception('Increase the local kernel size for calculating the local density')
 
 			local_kernel = np.ones((local_kernel_size, local_kernel_size), dtype = np.float32) / (local_kernel_size * local_kernel_size)
 			Local_Density = convolve(binarized_image, local_kernel)
 
+			# Normalize Local_Density between 0 and 1
+			if (Local_Density.max() > 0):
+				Local_Density = Local_Density / Local_Density.max()
+			else:
+				raise Exception('Local_Density might be an empty image')
+
+			###########################
+
+			# Calculate image gradients in X and Y directions
+			image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
+
+			###########################
+
+			# Calculate the structure tensor and solve for EigenValues, EigenVectors
+			Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+
+			###########################
+
+			# Calculate Coherence and smoothen the image a bit
+			Image_Coherance = make_coherence(filtered_image, EigenValues, ThresholdValueKey)
+
+			###########################
+
+			# Calculate Orientation and smoothen the image a bit
+			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
+			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
+
 		except:
 
-			raise Exception('Something went wrong in the analysis')
+			raise Exception('Analysis unsuccessful')
 
 		####################################################################################
 
-		FIGSIZE = (6, 6)
-
-		left_column3, right_column3  = st.columns(2)
+		left_column3, middle_column3, right_column3  = st.columns(3)
 
 		with left_column3:
 	
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'viridis')
+			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Greys_r')
 
 			plt.title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
 
-			aspect = 20
-			pad_fraction = 0.5
-
 			ax = plt.gca()
 			divider = make_axes_locatable(ax)
 			width = axes_size.AxesY(ax, aspect=1./aspect)
@@ -199,20 +216,15 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			st.pyplot(fig)
 
-		#########
-
-		with right_column3:
+		with middle_column3:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'viridis')
+			im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'Greys_r')
 
 			plt.title('Filtered Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
 
-			aspect = 20
-			pad_fraction = 0.5
-
 			ax = plt.gca()
 			divider = make_axes_locatable(ax)
 			width = axes_size.AxesY(ax, aspect=1./aspect)
@@ -223,9 +235,30 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			st.pyplot(fig)
 
+		with right_column3:
+
+			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
+			im = plt.imshow(Local_Density, vmin = 0, vmax = 1, cmap = 'inferno')
+
+			plt.title('Local Density', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.xticks([])
+			plt.yticks([])
+
+			ax = plt.gca()
+			divider = make_axes_locatable(ax)
+			width = axes_size.AxesY(ax, aspect=1./aspect)
+			pad = axes_size.Fraction(pad_fraction, width)
+			cax = divider.append_axes("right", size=width, pad=pad)
+			cbar = plt.colorbar(im, cax=cax)
+			cbar.formatter.set_powerlimits((0, 0))
+			# cbar.formatter.set_useMathText(True)
+			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+			st.pyplot(fig)
+
 		#########
 
-		left_column4, right_column4 = st.columns(2)
+		left_column4, middle_column4, right_column4 = st.columns(3)
 
 		with left_column4:
 
@@ -236,9 +269,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 			plt.xticks([])
 			plt.yticks([])
 
-			aspect = 20
-			pad_fraction = 0.5
-
 			ax = plt.gca()
 			divider = make_axes_locatable(ax)
 			width = axes_size.AxesY(ax, aspect=1./aspect)
@@ -249,37 +279,28 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			st.pyplot(fig)
 
-		#########
-
-		with right_column4:
+		with middle_column4:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
+			im = plt.imshow(Image_Orientation, vmin = 0, vmax = 180, cmap = 'hsv')
 
 			plt.title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
-
-			aspect = 20
-			pad_fraction = 0.5
 
 			ax = plt.gca()
 			divider = make_axes_locatable(ax)
 			width = axes_size.AxesY(ax, aspect=1./aspect)
 			pad = axes_size.Fraction(pad_fraction, width)
 			cax = divider.append_axes("right", size=width, pad=pad)
-			cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
+			cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 180, 5))
 			cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
 			ticklabs = cbar.ax.get_yticklabels()
 			cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
 
 			st.pyplot(fig)
 
-		#########
-
-		left_column5, right_column5  = st.columns(2)
-
-		with left_column5:
+		with right_column4:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
@@ -289,15 +310,12 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
 			scale = ScaleKey, headlength = 0, headaxislength = 0, 
-			pivot = 'middle', color = 'k', angles = 'xy')
+			pivot = 'middle', color = 'black', angles = 'xy')
 
 			plt.title('Local Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
 
-			aspect = 20
-			pad_fraction = 0.5
-
 			ax = plt.gca()
 			divider = make_axes_locatable(ax)
 			width = axes_size.AxesY(ax, aspect=1./aspect)
@@ -307,61 +325,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
 			st.pyplot(fig)
-
-		with right_column5:
-
-			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(Local_Density, vmin = 0, cmap = 'jet')
-
-			plt.title('Local Density', pad = PAD, fontsize = FONTSIZE_TITLE)
-			plt.xticks([])
-			plt.yticks([])
-
-			aspect = 20
-			pad_fraction = 0.5
-
-			ax = plt.gca()
-			divider = make_axes_locatable(ax)
-			width = axes_size.AxesY(ax, aspect=1./aspect)
-			pad = axes_size.Fraction(pad_fraction, width)
-			cax = divider.append_axes("right", size=width, pad=pad)
-			cbar = plt.colorbar(im, cax=cax)
-			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-			cbar.formatter.set_powerlimits((0, 0))
-			cbar.formatter.set_useMathText(True)
-
-			st.pyplot(fig)
-
-		#########
-
-		left_column6, right_column6  = st.columns(2)
-
-		with left_column6:
-
-			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(binarized_image, vmin = 0, vmax = 1, cmap = 'gray_r')
-
-			plt.title('Binarized Image', pad = PAD, fontsize = FONTSIZE_TITLE)
-			plt.xticks([])
-			plt.yticks([])
-
-			aspect = 20
-			pad_fraction = 0.5
-
-			ax = plt.gca()
-			divider = make_axes_locatable(ax)
-			width = axes_size.AxesY(ax, aspect=1./aspect)
-			pad = axes_size.Fraction(pad_fraction, width)
-			cax = divider.append_axes("right", size=width, pad=pad)
-			cbar = plt.colorbar(im, cax=cax)
-			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-			cbar.formatter.set_powerlimits((0, 0))
-
-			st.pyplot(fig)
-
-		with right_column6:
-
-			st.markdown('')
 
 		########################################################################
 
