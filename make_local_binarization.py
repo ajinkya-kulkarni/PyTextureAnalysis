@@ -44,6 +44,12 @@ def binarize_image_with_local_otsu(image, n):
 	if len(image.shape) != 2:
 		raise ValueError("Input should be a 2D image.")
 
+	#########
+
+	# Pad the input image to ensure that it has a shape that is divisible by the block size
+	pad_width = [(0, n - i % n) for i in image.shape]
+	image = np.pad(image, pad_width, mode='constant')
+
 	# Create a block view of the image
 	block_view = view_as_blocks(image, (n, n))
 
@@ -51,12 +57,18 @@ def binarize_image_with_local_otsu(image, n):
 	otsu_thresholds = np.array([filters.threshold_otsu(block) for block in block_view.reshape(-1, n, n)])
 
 	# Use the local Otsu threshold values as the offset for threshold_local
-	local_threshold = filters.threshold_local(image, block_size=n, method='gaussian', offset=otsu_thresholds.mean())
+	local_threshold = filters.threshold_local(image, block_size=n, method='gaussian', offset=otsu_thresholds.min())
+
+	#########
 
 	# Binarize the image using threshold_local with the calculated local threshold
 	binary_image = image > local_threshold
 
+	# Remove the padding from the binarized image
+	binary_image = binary_image[:image.shape[0] - pad_width[0][1], :image.shape[1] - pad_width[1][1]]
+
 	return binary_image
+
 
 
 ## Example usage:

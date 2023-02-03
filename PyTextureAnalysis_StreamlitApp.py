@@ -135,33 +135,37 @@ with st.form(key = 'form1', clear_on_submit = False):
 	if submitted:
 
 		try:
-			
+
+			# Filter the image
 			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
 
+			# Calculate image gradients in X and Y directions
 			image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
 
+			# Calculate the structure tensor and solve for EigenValues, EigenVectors
 			Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
 
+			# Calculate Coherence
 			Image_Coherance = make_coherence(filtered_image, EigenValues, ThresholdValueKey)
 
+			# Calculate Orientation
 			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
-
 			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
 
-			local_kernel_size = int(0.5*LocalSigmaKey)
+			# Calculate local density by binarizing the image first, then convoluting it with a nxn kernel of ones. Refer to: https://opg.optica.org/oe/fulltext.cfm?uri=oe-30-14-25718&id=477526
+
+			local_kernel_size = int(LocalSigmaKey)
 			if (local_kernel_size % 2 == 0):
 				local_kernel_size = local_kernel_size + 1
 			if (local_kernel_size < 3):
 				raise Exception('Increase the local kernel size')
 
-			# binarized_image = binarize_image_with_local_otsu(filtered_image, local_kernel_size)
-
-			from skimage.filters import threshold_mean
-			thresh = threshold_mean(filtered_image)
-			binarized_image = filtered_image > thresh
+			from scipy.ndimage import median_filter
+			median_filtered_image = median_filter(raw_image, size=local_kernel_size)
+			binarized_image = binarize_image_with_local_otsu(median_filtered_image, local_kernel_size)
 
 			local_kernel = np.ones((local_kernel_size, local_kernel_size), dtype = np.float32) / (local_kernel_size * local_kernel_size)
-			Local_Coverage = convolve(binarized_image, local_kernel)
+			Local_Density = convolve(binarized_image, local_kernel)
 
 		except:
 
@@ -307,9 +311,9 @@ with st.form(key = 'form1', clear_on_submit = False):
 		with right_column5:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(Local_Coverage, vmin = 0, cmap = 'jet')
+			im = plt.imshow(Local_Density, vmin = 0, cmap = 'jet')
 
-			plt.title('Local Coverage', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.title('Local Density', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
 
