@@ -41,10 +41,16 @@ def make_coherence(input_image, eigenvalues, threshold_value):
 	if not isinstance(threshold_value, (float, int)):
 		raise TypeError("Threshold value must be a float or an int.")
 
-	mask = (input_image >= threshold_value) & ((eigenvalues[:,:,0] + eigenvalues[:,:,1]) > 0)
+	if (eigenvalues[:,:,0] + eigenvalues[:,:,1]).all() > 0:
 
-	coherence = np.abs((eigenvalues[:,:,1] - eigenvalues[:,:,0]) / (eigenvalues[:,:,0] + eigenvalues[:,:,1]))
+		mask = (input_image >= threshold_value) & ((eigenvalues[:,:,0] + eigenvalues[:,:,1]) > 0)
 
-	coherence[~mask] = np.nan
+		coherence = np.abs((eigenvalues[:,:,1] - eigenvalues[:,:,0]) / (eigenvalues[:,:,0] + eigenvalues[:,:,1]))
+
+		coherence[~mask] = np.nan
+
+	else:
+
+		raise Exception('Choose a bigger gaussian local window')
 
 	return coherence

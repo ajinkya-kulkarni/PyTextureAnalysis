@@ -44,6 +44,7 @@ sys.tracebacklimit = 0
 
 ########################################################################################
 
+from read_image import *
 from make_coherence import *
 from make_image_gradients import *
 from make_orientation import *
@@ -100,7 +101,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 		FilterKey = float(st.session_state['-FilterKey-'])
 
 	with middle_column1:
-		st.slider('Gaussian local window [pixels]', min_value = 2, max_value = 50, value = 10, step = 2, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		st.slider('Gaussian local window [pixels]', min_value = 1, max_value = 50, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
 	with right_column1:
@@ -134,18 +135,14 @@ with st.form(key = 'form1', clear_on_submit = False):
 	if uploaded_file is None:
 		st.stop()
 
-	raw_image_from_pillow = Image.open(uploaded_file)
-
-	raw_image = np.array(raw_image_from_pillow)
-
-	if len(raw_image.shape) != 2:
-		raise ValueError("Invalid image format")
-
 	####################################################################################
 
 	if submitted:
 
 		try:
+
+			# Read the image correctly
+			raw_image = convert_to_8bit_grayscale(uploaded_file)
 
 			# Filter the image
 			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
@@ -164,7 +161,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 			if (local_kernel_size % 2 == 0):
 				local_kernel_size = local_kernel_size + 1
 			if (local_kernel_size < 3):
-				raise Exception('Increase the local kernel size for calculating the local density')
+				local_kernel_size = 3
 
 			local_kernel = np.ones((local_kernel_size, local_kernel_size), dtype = np.float32) / (local_kernel_size * local_kernel_size)
 			Local_Density = convolve(binarized_image, local_kernel)
@@ -200,7 +197,9 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			# Calculate GLCM properties
 
-			angles = np.array([0, 45, 90, 135])
+			# angles = np.array([0, 45, 90, 135])
+
+			angles = np.linspace(0, 180, 10)
 
 			contrast, correlation, energy, homogeneity = calculate_glcm_properties(filtered_image, angles)
 
@@ -278,7 +277,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 		with left_column4:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'magma_r')
+			im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
 
 			plt.title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
