@@ -200,7 +200,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			# Calculate GLCM properties
 
-			angles = [0, 45, 90, 135]
+			angles = np.array([0, 45, 90, 135])
 
 			contrast, correlation, energy, homogeneity = calculate_glcm_properties(filtered_image, angles)
 
