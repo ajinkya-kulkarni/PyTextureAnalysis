@@ -200,7 +200,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			# Calculate GLCM properties
 
-			angles = np.linspace(0, 180, 10)
+			angles = [0, 45, 90, 135]
 
 			contrast, correlation, energy, homogeneity = calculate_glcm_properties(filtered_image, angles)
 
@@ -343,8 +343,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		#########
 		
-		xticks_array = list([angles[0], *angles[1::2], angles[-1]]) # every alternate angle
-		# xticks_array = list(angles)
+# 		xticks_array = list([angles[0], *angles[1::2], angles[-1]]) # every alternate angle
+		xticks_array = list(angles)
 		xlist_ticks = [str(int(i)) for i in np.int_(xticks_array)]
 
 		plots = [(contrast[0], '-o', 'tab:blue', 'Contrast'), (energy[0], '-o', 'tab:green', 'Energy'), (correlation[0], '-o', 'tab:orange', 'Correlation'),(homogeneity[0], '-o', 'tab:red', 'Homogeneity')]
