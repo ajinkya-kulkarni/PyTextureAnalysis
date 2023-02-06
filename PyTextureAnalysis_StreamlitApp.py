@@ -52,7 +52,6 @@ from make_structure_tensor_2d import *
 from make_vxvy import *
 from make_binarization import *
 from make_convolution import *
-from make_glcm import *
 
 ########################################################################################
 
@@ -193,15 +192,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
 			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
 
-			###########################
-
-			# Calculate GLCM properties
-
-			# angles = np.array([0, 45, 90, 135])
-
-			angles = np.linspace(0, 180, 10)
-
-			contrast, correlation, energy, homogeneity = calculate_glcm_properties(filtered_image, angles)
 
 		except:
 
@@ -339,28 +329,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 			cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
 			st.pyplot(fig)
-
-		#########
-		
-# 		xticks_array = list([angles[0], *angles[1::2], angles[-1]]) # every alternate angle
-		xticks_array = list(angles)
-		xlist_ticks = [str(int(i)) for i in np.int_(xticks_array)]
-
-		plots = [(contrast[0], '-o', 'tab:blue', 'Contrast'), (energy[0], '-o', 'tab:green', 'Energy'), (correlation[0], '-o', 'tab:orange', 'Correlation'),(homogeneity[0], '-o', 'tab:red', 'Homogeneity')]
-
-		leftmost_column5, left_column5, right_column5, rightmost_column5 = st.columns(4)
-
-		for column, (y, marker, color, title) in zip([leftmost_column5, left_column5, right_column5, rightmost_column5], plots):
-			with column:
-				fig = plt.figure(figsize=FIGSIZE, constrained_layout=True, dpi=DPI)
-				plt.plot(angles, y, marker, linewidth = linewidth, markersize=markersize, color=color, markerfacecolor=color)
-				plt.xlabel('Angles', fontsize = factor*FONTSIZE_TITLE)
-				plt.xticks(xticks_array, xlist_ticks)
-				plt.tick_params(axis='x', labelsize = factor*FONTSIZE_TITLE)
-				plt.tick_params(axis='y', labelsize = factor*FONTSIZE_TITLE)
-				plt.xlim(angles.min() - 5, angles.max() + 5)
-				plt.title(title, pad = PAD, fontsize = factor*FONTSIZE_TITLE)
-				st.pyplot(fig)
 
 		########################################################################
 
