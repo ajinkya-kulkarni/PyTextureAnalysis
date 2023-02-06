@@ -36,9 +36,7 @@ def convert_to_8bit_grayscale(filename):
 	numpy.ndarray: The 8-bit grayscale version of the image, represented as a numpy array.
 	"""
 	# Load the image using Pillow and convert to 8 bit
-	img = Image.open(filename)
-
-	img = img.convert("L")
+	img = Image.open(filename).convert("L")
 	
 	# Convert the image to a numpy array
 	img = np.array(img)
