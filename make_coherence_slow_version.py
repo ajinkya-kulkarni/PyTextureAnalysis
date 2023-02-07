@@ -24,7 +24,7 @@ import numpy as np
 
 input_image, eigenvalues, threshold_value
 
-def make_Coherance_Orientation(input_image, eigenvalues, Structure_Tensor, threshold_value):
+def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
 
 	Coherance_Array = np.zeros(input_image.shape)
 
