@@ -21,6 +21,8 @@
 #######################################################################################################
 
 from PIL import Image
+Image.MAX_IMAGE_PIXELS = None
+
 import numpy as np
 import cv2
 
