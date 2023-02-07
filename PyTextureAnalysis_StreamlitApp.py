@@ -71,7 +71,7 @@ st.markdown("")
 
 ########################################################################################
 
-FIGSIZE = (6, 6)
+FIGSIZE = (5, 5)
 PAD = 10
 FONTSIZE_TITLE = 15
 DPI = 500
@@ -104,25 +104,26 @@ with st.form(key = 'form1', clear_on_submit = False):
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
 	with right_column1:
-		st.slider('Threshold value for pixel evaluation [pixels]' , min_value = 5, max_value = 200, value = 20, step = 5, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
-		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
+		st.slider('Window size for evaluating local density [pixels]', min_value = 1, max_value = 50, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalDensityKey-')
+		LocalDensityKey = int(st.session_state['-LocalDensityKey-'])
 
 	####################################################################################
 
 	left_column2, middle_column2, right_column2  = st.columns(3)
 
 	with left_column2:
+
+		st.slider('Threshold value for pixel evaluation [pixels]' , min_value = 5, max_value = 200, value = 20, step = 5, format = '%d', label_visibility = "visible", key = '-ThresholdValueKey-')
+		ThresholdValueKey = int(st.session_state['-ThresholdValueKey-'])
+
+	with middle_column2:
 		st.slider('Spacing between the orientation vectors', min_value = 5, max_value = 50, value = 20, step = 5, format = '%d', label_visibility = "visible", key = '-SpacingKey-')
 		SpacingKey = int(st.session_state['-SpacingKey-'])
 
-	with middle_column2:
+	with right_column2:
 		st.slider('Scaling for the orientation vectors', min_value = 10, max_value = 100, value = 40, step = 5, format = '%d', label_visibility = "visible", key = '-ScaleKey-')
 		ScaleKey = int(st.session_state['-ScaleKey-'])
-
-	with right_column2:
-		st.slider('Alpha value for image transparency', min_value = 0.1, max_value = 1.0, value = 0.6, step = 0.1, format = '%0.1f', label_visibility = "visible", key = '-AlphaKey-')
-		AlphaKey = float(st.session_state['-AlphaKey-'])
-
+		
 	####################################################################################
 
 	st.markdown("")
@@ -156,7 +157,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 			binarized_image = binarize_image(filtered_image)
 
 			# Define the kernel and it's size
-			local_kernel_size = LocalSigmaKey
+			local_kernel_size = LocalDensityKey
 			if (local_kernel_size % 2 == 0):
 				local_kernel_size = local_kernel_size + 1
 			if (local_kernel_size < 3):
@@ -191,7 +192,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 			# Calculate Orientation
 			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
 			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
-
 
 		except:
 
@@ -308,13 +308,13 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Oranges', alpha = AlphaKey)
+			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'gray', alpha = 0.8)
 
 			xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
 
 			plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
 			scale = ScaleKey, headlength = 0, headaxislength = 0, 
-			pivot = 'middle', color = 'black', angles = 'xy')
+			pivot = 'middle', color = 'cyan', angles = 'xy')
 
 			plt.title('Local Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
