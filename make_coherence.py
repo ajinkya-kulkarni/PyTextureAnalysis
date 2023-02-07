@@ -51,6 +51,7 @@ def make_coherence(input_image, eigenvalues, threshold_value):
 
 	else:
 
-		raise Exception('Choose a bigger gaussian local window')
+		coherence[~mask] = np.nan
+
 
 	return coherence
