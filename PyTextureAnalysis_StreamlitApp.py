@@ -96,15 +96,15 @@ with st.form(key = 'form1', clear_on_submit = False):
 	left_column1, middle_column1, right_column1  = st.columns(3)
 
 	with left_column1:
-		st.slider('Gaussian image filter sigma [pixels]', min_value = 0.5, max_value = 5.0, value = 1.0, step = 0.5, format = '%0.1f', label_visibility = "visible", key = '-FilterKey-')
-		FilterKey = float(st.session_state['-FilterKey-'])
+		st.slider('Gaussian image filter sigma [pixels]', min_value = 1, max_value = 10, value = 1, step = 1, format = '%d', label_visibility = "visible", key = '-FilterKey-')
+		FilterKey = int(st.session_state['-FilterKey-'])
 
 	with middle_column1:
-		st.slider('Gaussian local window [pixels]', min_value = 1, max_value = 50, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
+		st.slider('Gaussian local window [pixels]', min_value = 1, max_value = 100, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalSigmaKey-')
 		LocalSigmaKey = int(st.session_state['-LocalSigmaKey-'])
 
 	with right_column1:
-		st.slider('Window size for evaluating local density [pixels]', min_value = 1, max_value = 50, value = 10, step = 1, format = '%d', label_visibility = "visible", key = '-LocalDensityKey-')
+		st.slider('Window size for evaluating local density [pixels]', min_value = 1, max_value = 100, value = 20, step = 1, format = '%d', label_visibility = "visible", key = '-LocalDensityKey-')
 		LocalDensityKey = int(st.session_state['-LocalDensityKey-'])
 
 	####################################################################################
