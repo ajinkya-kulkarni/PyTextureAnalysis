@@ -51,10 +51,6 @@ def make_coherence(input_image, eigenvalues, threshold_value):
 
 	else:
 
-		coherence = np.nan
-
-	if np.isnan(coherence).all():
-
 		raise TypeError("Choose a bigger gaussian window.")
 
 	return coherence
