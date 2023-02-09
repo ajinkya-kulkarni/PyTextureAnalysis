@@ -130,6 +130,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 	submitted = st.form_submit_button('Analyze')
 
+	st.markdown("")
+
 	####################################################################################
 
 	if uploaded_file is None:
@@ -139,13 +141,26 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 	if submitted:
 
+		ProgressBarText = st.empty()
+		ProgressBar = st.progress(0)
+
+		ProgressBarTime = 1.5
+
 		try:
 
 			# Read the image correctly
 			raw_image = convert_to_8bit_grayscale(uploaded_file)
 
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(1/8))
+			ProgressBarText.caption("Read the uploaded image")
+
 			# Filter the image
 			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
+
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(2/8))
+			ProgressBarText.caption("Evaluated filtered image")
 
 			###########################
 
@@ -156,6 +171,10 @@ with st.form(key = 'form1', clear_on_submit = False):
 			# Binarize the image
 			binarized_image = binarize_image(filtered_image)
 
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(3/8))
+			ProgressBarText.caption("Evaluated binarized image")
+
 			# Define the kernel and it's size
 			local_kernel_size = LocalDensityKey
 			if (local_kernel_size % 2 == 0):
@@ -164,7 +183,12 @@ with st.form(key = 'form1', clear_on_submit = False):
 				local_kernel_size = 3
 
 			local_kernel = np.ones((local_kernel_size, local_kernel_size), dtype = np.float32) / (local_kernel_size * local_kernel_size)
+
 			Local_Density = convolve(binarized_image, local_kernel)
+
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(4/8))
+			ProgressBarText.caption("Evaluated local density image")
 
 			# Normalize Local_Density between 0 and 1
 			if (Local_Density.max() > 0):
@@ -177,10 +201,18 @@ with st.form(key = 'form1', clear_on_submit = False):
 			# Calculate image gradients in X and Y directions
 			image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
 
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(5/8))
+			ProgressBarText.caption("Evaluated image gradients")
+
 			###########################
 
 			# Calculate the structure tensor and solve for EigenValues, EigenVectors
 			Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(6/8))
+			ProgressBarText.caption("Evaluated structure tensor and calculated EigenValues and EigenVectors")
 
 			###########################
 
@@ -188,11 +220,28 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			Image_Coherance = make_coherence(filtered_image, EigenValues, Structure_Tensor, ThresholdValueKey)
 
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(7/8))
+			ProgressBarText.caption("Evaluated coherence")
+
 			###########################
 
 			# Calculate Orientation
 			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
 			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
+
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(7/8))
+			ProgressBarText.caption("Evaluated orientation")
+
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(8/8))
+			ProgressBarText.caption("Analysis finished")
+
+			time.sleep(ProgressBarTime)
+
+			ProgressBarText.empty()
+			ProgressBar.empty()
 
 		except:
 
