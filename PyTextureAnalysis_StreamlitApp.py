@@ -360,7 +360,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Oranges', alpha = 0.7)
+			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Oranges', alpha = 0.8)
 
 			xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
 
