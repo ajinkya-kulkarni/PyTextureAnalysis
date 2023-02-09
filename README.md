@@ -15,7 +15,7 @@ PyTextureAnalysis is a Python package (inspired from http://bigwww.epfl.ch/demo/
 
 A webapp develped using `Streamlit`(https://streamlit.io/) is available at https://textureinformation-package.streamlit.app/ or have a look at the `Example.ipynb` file to get an idea how to use the package to extract and visualize local fibre orientation and organization.
 
-![alt text](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp.png)
+![alt text](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp.jpg)
 
 ## Dependencies
 
@@ -25,5 +25,9 @@ The following dependencies must be installed:
 - numpy
 - scipy
 - opencv-python
+- numba
+- Pillow
+- matplotlib
+- scikit-image
 
 You can install these dependencies by first installing `Python` and then running the command: `pip install -r requirements.txt` in the terminal.
