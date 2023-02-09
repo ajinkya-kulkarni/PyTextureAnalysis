@@ -21,36 +21,46 @@
 #######################################################################################################
 
 import numpy as np
+from numba import jit
 
-def make_coherence(input_image, eigenvalues, threshold_value):
+@jit
+def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
 	"""
-	Calculates the coherence of an image based on its eigenvalues and a threshold value.
-
+	Calculate coherence values for a given input image, eigenvalues, structure tensor, and threshold value.
+	
 	Parameters:
-	- input_image (numpy array): 2D array representing the input image.
-	- eigenvalues (numpy array): 3D array with shape (image.shape[0], image.shape[1], 2) representing the eigenvalues of the image.
-	- threshold_value (float): Threshold value used to determine which elements of the input image will be used in the calculations.
-
+	- input_image (numpy.ndarray): The input image for which coherence values are to be calculated.
+	- eigenvalues (numpy.ndarray): The eigenvalues of the input image.
+	- Structure_Tensor (numpy.ndarray): The structure tensor of the input image.
+	- threshold_value (float): The threshold value to determine if the calculation should be done.
+	
 	Returns:
-	- coherence (numpy array): 2D array representing the coherence of the input image. Elements that do not meet the threshold condition are filled with NaN.
+	- Coherence_Array (numpy.ndarray): An array containing the coherence values for the input image.
+	
 	"""
-	if input_image.ndim != 2:
-		raise ValueError("Input image must be 2-dimensional.")
-	if eigenvalues.shape[:2] != input_image.shape:
-		raise ValueError("Eigenvalues array must have the same shape as the input image.")
-	if not isinstance(threshold_value, (float, int)):
-		raise TypeError("Threshold value must be a float or an int.")
 
-	if (eigenvalues[:,:,0] + eigenvalues[:,:,1]).all() > 0:
+	Coherence_Array = np.zeros(input_image.shape)
 
-		mask = (input_image >= threshold_value) & ((eigenvalues[:,:,0] + eigenvalues[:,:,1]) > 0)
+	for j in range(input_image.shape[1]):
 
-		coherence = np.abs((eigenvalues[:,:,1] - eigenvalues[:,:,0]) / (eigenvalues[:,:,0] + eigenvalues[:,:,1]))
+		for i in range(input_image.shape[0]):
 
-		coherence[~mask] = np.nan
+			# Check if the sum of the EigenValues of the Structure_Tensor is greater than 0
+			
+			if ( (input_image[i, j] >= threshold_value ) and ((eigenvalues[i, j].sum()) > 0) ) :
 
-	else:
+				trace = np.trace(Structure_Tensor[i, j])
 
-		raise TypeError("Choose a bigger gaussian window.")
+				Smallest_Normalized_Eigenvalues = eigenvalues[i, j][0] / trace
 
-	return coherence
+				Largest_Normalized_Eigenvalues = eigenvalues[i, j][1] / trace
+
+				Coherence_Array[i, j] = np.abs((Largest_Normalized_Eigenvalues -
+												Smallest_Normalized_Eigenvalues) /
+												(Smallest_Normalized_Eigenvalues +
+												Largest_Normalized_Eigenvalues))
+			else:
+				
+				Coherence_Array[i, j] = np.nan
+
+	return Coherence_Array

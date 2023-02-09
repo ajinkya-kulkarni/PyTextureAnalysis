@@ -22,7 +22,9 @@
 
 import cv2
 import numpy as np
+from numba import jit
 
+@jit
 def convolve(image, kernel):
 	"""
 	Perform convolution on a binary image with a kernel of any size

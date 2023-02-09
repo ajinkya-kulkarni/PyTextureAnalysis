@@ -22,7 +22,9 @@
 
 import numpy as np
 import cv2 as cv
+from numba import jit
 
+@jit
 def make_orientation(input_image, Jxx, Jxy, Jyy, threshold_value):
 	"""
 	Calculates orientation of an image using structure tensor components.

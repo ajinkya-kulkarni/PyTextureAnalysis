@@ -22,7 +22,9 @@
 
 import numpy as np
 import scipy.ndimage
+from numba import jit
 
+@jit
 def make_structure_tensor_2d(image_gradient_x, image_gradient_y, local_sigma):
 	"""
 	Calculates 2D structure tensor of an image using image gradients in x and y directions and a local standard deviation.
