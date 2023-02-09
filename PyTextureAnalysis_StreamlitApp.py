@@ -268,7 +268,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 		with left_column4:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'RdYlBu_r')
+
+			im = plt.imshow(plt.cm.gray(raw_image/raw_image.max()) * plt.cm.Spectral(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral')
 
 			plt.title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
@@ -287,7 +288,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 		with middle_column4:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(Image_Orientation, vmin = 0, vmax = 180, cmap = 'hsv')
+
+			im = plt.imshow(plt.cm.gray(raw_image/raw_image.max()) * plt.cm.hsv(Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
 
 			plt.title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
@@ -298,7 +300,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 			width = axes_size.AxesY(ax, aspect=1./aspect)
 			pad = axes_size.Fraction(pad_fraction, width)
 			cax = divider.append_axes("right", size=width, pad=pad)
-			cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 180, 5))
+			cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
 			cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
 			ticklabs = cbar.ax.get_yticklabels()
 			cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
