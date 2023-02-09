@@ -360,13 +360,13 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'gray', alpha = 0.8)
+			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Oranges', alpha = 0.7)
 
 			xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
 
 			plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
 			scale = ScaleKey, headlength = 0, headaxislength = 0, 
-			pivot = 'middle', color = 'cyan', angles = 'xy')
+			pivot = 'middle', color = 'black', angles = 'xy')
 
 			plt.title('Local Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
