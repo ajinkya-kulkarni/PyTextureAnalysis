@@ -45,10 +45,7 @@ sys.tracebacklimit = 0
 ########################################################################################
 
 from read_image import *
-
-from make_coherence_fast_version import *
-from make_coherence_slow_version import *
-
+from make_coherence import *
 from make_image_gradients import *
 from make_orientation import *
 from make_structure_tensor_2d import *
