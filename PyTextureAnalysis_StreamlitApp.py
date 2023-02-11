@@ -145,10 +145,10 @@ with st.form(key = 'form1', clear_on_submit = False):
 	if submitted:
 
 		ProgressBarText = st.empty()
+		ProgressBarText.caption("Analyzing...")
 		ProgressBar = st.progress(0)
-		ProgressBarText.caption("Analyzing uploaded image...")
 
-		ProgressBarTime = 0.1
+		ProgressBarTime = 0.5
 
 		try:
 
