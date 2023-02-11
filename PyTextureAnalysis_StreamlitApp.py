@@ -45,13 +45,16 @@ sys.tracebacklimit = 0
 ########################################################################################
 
 from read_image import *
-from make_coherence import *
-from make_image_gradients import *
-from make_orientation import *
-from make_structure_tensor_2d import *
-from make_vxvy import *
 from make_binarization import *
+
 from make_convolution import *
+
+from make_image_gradients import *
+from make_structure_tensor_2d import *
+
+from make_coherence import *
+from make_orientation import *
+from make_vxvy import *
 
 ########################################################################################
 
@@ -143,8 +146,9 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		ProgressBarText = st.empty()
 		ProgressBar = st.progress(0)
+		ProgressBarText.caption("Analyzing uploaded image...")
 
-		ProgressBarTime = 1.5
+		ProgressBarTime = 0.1
 
 		try:
 
@@ -153,14 +157,12 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(1/8))
-			ProgressBarText.caption("Read the uploaded image")
 
 			# Filter the image
 			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(2/8))
-			ProgressBarText.caption("Evaluated filtered image")
 
 			###########################
 
@@ -173,7 +175,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(3/8))
-			ProgressBarText.caption("Evaluated binarized image")
 
 			# Define the kernel and it's size
 			local_kernel_size = LocalDensityKey
@@ -188,7 +189,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(4/8))
-			ProgressBarText.caption("Evaluated local density image")
 
 			# Normalize Local_Density between 0 and 1
 			if (Local_Density.max() > 0):
@@ -203,7 +203,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(5/8))
-			ProgressBarText.caption("Evaluated image gradients")
 
 			###########################
 
@@ -212,7 +211,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(6/8))
-			ProgressBarText.caption("Evaluated structure tensor and calculated EigenValues and EigenVectors")
 
 			###########################
 
@@ -222,7 +220,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(7/8))
-			ProgressBarText.caption("Evaluated coherence")
 
 			###########################
 
@@ -232,11 +229,9 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(7/8))
-			ProgressBarText.caption("Evaluated orientation")
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(8/8))
-			ProgressBarText.caption("Analysis finished")
 
 			time.sleep(ProgressBarTime)
 
