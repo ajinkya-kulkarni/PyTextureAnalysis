@@ -47,11 +47,7 @@ def convert_to_8bit_grayscale(filename):
 	if img.ndim != 2:
 		raise ValueError("Input image must be 2D grayscale.")
 
-	# Check if the image is already 8-bit
-	if img.dtype == 'uint8':
-		return img
-
-	# Convert the image to 8-bit if necessary
+	# Normalize the image
 	img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
 
 	return img
