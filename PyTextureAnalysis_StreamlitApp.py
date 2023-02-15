@@ -301,7 +301,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 		with right_column3:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(Local_Density, vmin = 0, vmax = 1, cmap = 'magma_r')
+			im = plt.imshow(Local_Density, vmin = 0, vmax = 1, cmap = 'Spectral_r')
 
 			plt.title('Local Density', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
@@ -327,7 +327,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			im = plt.imshow(plt.cm.gray(raw_image/raw_image.max()) * plt.cm.Spectral(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral')
+			im = plt.imshow(plt.cm.gray(raw_image/raw_image.max()) * plt.cm.Spectral_r(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
 
 			plt.title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
