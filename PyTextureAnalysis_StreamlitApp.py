@@ -375,7 +375,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			im = plt.imshow(plt.cm.gray(raw_image/raw_image.max()) * plt.cm.hsv(Image_Orientation/18), vmin = 0, vmax = 1, cmap = 'hsv')
+			im = plt.imshow(plt.cm.gray(raw_image/raw_image.max()) * plt.cm.hsv(Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
 			#im = plt.imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
 
 			plt.title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
