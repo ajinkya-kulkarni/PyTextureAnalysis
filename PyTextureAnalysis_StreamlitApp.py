@@ -44,17 +44,19 @@ sys.tracebacklimit = 0
 
 ########################################################################################
 
-from read_image import *
 from make_binarization import *
-
-from make_convolution import *
-
-from make_image_gradients import *
-from make_structure_tensor_2d import *
-
+from make_chunks import *
+from make_circular_variance import *
 from make_coherence import *
+from make_convolution import *
+from make_image_gradients import *
+from make_mosiac import *
 from make_orientation import *
+from make_padded_image import *
+from make_structure_tensor_2d import *
 from make_vxvy import *
+from read_image import *
+from stitch_chunks import *
 
 ########################################################################################
 
@@ -156,13 +158,13 @@ with st.form(key = 'form1', clear_on_submit = False):
 			raw_image = convert_to_8bit_grayscale(uploaded_file)
 
 			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(1/8))
+			ProgressBar.progress(float(1/5))
 
 			# Filter the image
 			filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
 
 			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(2/8))
+			ProgressBar.progress(float(2/5))
 
 			###########################
 
@@ -174,7 +176,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 			binarized_image = binarize_image(filtered_image)
 
 			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(3/8))
+			ProgressBar.progress(float(3/5))
 
 			# Define the kernel and it's size
 			local_kernel_size = LocalDensityKey
@@ -187,51 +189,63 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			Local_Density = convolve(binarized_image, local_kernel)
 
-			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(4/8))
+			Local_Density = np.divide(Local_Density, Local_Density.max(),
+                          out=np.full(Local_Density.shape, np.nan),
+                          where=Local_Density.max() != 0)
 
-			# Normalize Local_Density between 0 and 1
-			if (Local_Density.max() > 0):
-				Local_Density = Local_Density / Local_Density.max()
-			else:
-				raise Exception('Local_Density might be an empty image')
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(4/5))
 
 			###########################
 
-			# Calculate image gradients in X and Y directions
-			image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
+			each_chunk_size = int(LocalSigmaKey)
 
-			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(5/8))
+			padded_raw_image = generate_padded_image(raw_image, each_chunk_size)
+
+			chunks = split_into_chunks(padded_raw_image, each_chunk_size)
+
+			Image_Coherance_list = []
+			Image_Orientation_list = []
+			vx_list = []
+			vy_list = []
+
+			for i in range(len(chunks)):
+
+				current_chunk = chunks[i]
+
+				filtered_chunk = skimage.filters.gaussian(current_chunk,
+														sigma = FilterKey,
+														mode = 'nearest',
+														preserve_range = True)
+
+				# Calculate image gradients in X and Y directions
+				image_gradient_x, image_gradient_y = make_image_gradients(filtered_chunk)
+
+				# Calculate the structure tensor and solve for EigenValues, EigenVectors
+
+				Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+
+				Image_Coherance = make_coherence(filtered_chunk, EigenValues, Structure_Tensor, ThresholdValueKey)
+
+				Image_Orientation = make_orientation(filtered_chunk, Jxx, Jxy, Jyy, ThresholdValueKey)
+				vx, vy = make_vxvy(filtered_chunk, EigenVectors, ThresholdValueKey)
+
+				Image_Coherance_list.append(Image_Coherance)
+				Image_Orientation_list.append(Image_Orientation)
+				vx_list.append(vx)
+				vy_list.append(vy)
 
 			###########################
 
-			# Calculate the structure tensor and solve for EigenValues, EigenVectors
-			Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+			Image_Orientation = stitch_back_chunks(Image_Orientation_list, padded_raw_image, raw_image, each_chunk_size)
+
+			Image_Coherance = stitch_back_chunks(Image_Coherance_list, padded_raw_image, raw_image, each_chunk_size)
+
+			vx = stitch_back_chunks(vx_list, padded_raw_image, raw_image, each_chunk_size)
+			vy = stitch_back_chunks(vy_list, padded_raw_image, raw_image, each_chunk_size)
 
 			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(6/8))
-
-			###########################
-
-			# Calculate Coherence
-
-			Image_Coherance = make_coherence(filtered_image, EigenValues, Structure_Tensor, ThresholdValueKey)
-
-			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(7/8))
-
-			###########################
-
-			# Calculate Orientation
-			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
-			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
-
-			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(7/8))
-
-			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(8/8))
+			ProgressBar.progress(float(5/5))
 
 			time.sleep(ProgressBarTime)
 

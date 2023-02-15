@@ -27,26 +27,26 @@ from numba import jit
 def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
 	"""
 	Calculate coherence values for a given input image, eigenvalues, structure tensor, and threshold value.
-	
+
 	Parameters:
 	- input_image (numpy.ndarray): The input image for which coherence values are to be calculated.
 	- eigenvalues (numpy.ndarray): The eigenvalues of the input image.
 	- Structure_Tensor (numpy.ndarray): The structure tensor of the input image.
 	- threshold_value (float): The threshold value to determine if the calculation should be done.
-	
+
 	Returns:
 	- Coherence_Array (numpy.ndarray): An array containing the coherence values for the input image.
-	
+
 	"""
 
-	Coherence_Array = np.zeros(input_image.shape)
+	Coherence_Array = np.full(input_image.shape, np.nan)
 
 	for j in range(input_image.shape[1]):
 
 		for i in range(input_image.shape[0]):
 
 			# Check if the sum of the EigenValues of the Structure_Tensor is greater than 0
-			
+
 			if ( (input_image[i, j] >= threshold_value ) and ((eigenvalues[i, j].sum()) > 0) ) :
 
 				trace = np.trace(Structure_Tensor[i, j])
@@ -59,8 +59,5 @@ def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
 												Smallest_Normalized_Eigenvalues) /
 												(Smallest_Normalized_Eigenvalues +
 												Largest_Normalized_Eigenvalues))
-			else:
-				
-				Coherence_Array[i, j] = np.nan
 
 	return Coherence_Array
