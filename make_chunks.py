@@ -21,9 +21,7 @@
 ###################################################################################
 
 import numpy as np
-from numba import jit
 
-@jit
 def split_into_chunks(img, chunk_size):
     """
     Splits a 2D grayscale image into chunks of a given size.

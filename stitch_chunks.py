@@ -21,9 +21,7 @@
 ###################################################################################
 
 import numpy as np
-from numba import jit
 
-@jit
 def stitch_back_chunks(analyzed_chunk_list, padded_img, img, chunk_size):
     """
     Reconstruct an image from a list of analyzed image chunks.
