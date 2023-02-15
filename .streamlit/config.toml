@@ -1,4 +1,4 @@
 [theme]
 base="light"
 [server]
-maxUploadSize = 10000
+maxUploadSize = 200
