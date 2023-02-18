@@ -304,7 +304,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 		with middle_column3:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(binarized_image, vmin = 0, vmax = 1, cmap = 'binary')
+# 			im = plt.imshow(binarized_image, vmin = 0, vmax = 1, cmap = 'binary')
+			im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'binary')
 
 			plt.title('Binarized Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
