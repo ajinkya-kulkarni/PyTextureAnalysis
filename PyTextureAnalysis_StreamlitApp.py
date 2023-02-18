@@ -77,13 +77,16 @@ factor = 1.2
 markersize = 12
 linewidth = 3
 
+each_chunk_size = 20
+Trigger_for_chunks = 20
+
 ########################################################################################
 
 with st.form(key = 'form1', clear_on_submit = False):
 	
-	st.markdown(':blue[Upload a 2D grayscale image to be analyzed. Works best with images with the same X and Y dimensions.]')
+	st.markdown(':blue[Upload a 2D grayscale image to be analyzed. Works best with images smaller than 600x600 pixels.]')
 
-	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed. Works best with images with the same X and Y dimensions.", type=["tif", "tiff", "png", "jpg", "jpeg"], accept_multiple_files = False, label_visibility = 'collapsed')
+	uploaded_file = st.file_uploader("Upload a 2D grayscale image to be analyzed. Works best with images smaller than 600x600 pixels.", type=["tif", "tiff", "png", "jpg", "jpeg"], accept_multiple_files = False, label_visibility = 'collapsed')
 
 	st.markdown("""---""")
 	
@@ -182,83 +185,82 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			###########################
 
-			each_chunk_size = int(LocalSigmaKey)
-
-			Trigger_for_chunks = 20
-
 			# Trigger for evaluating the images as chunks. Currently activated only for each_chunk_size > 20, or if the 2D input image is bigger than 600x600 pixels.
 
 			if ((each_chunk_size >= Trigger_for_chunks) or (min(raw_image.shape[0], raw_image.shape[1]) > 600)):
-				padded_raw_image = generate_padded_image(raw_image, each_chunk_size)
-				chunks = split_into_chunks(padded_raw_image, each_chunk_size)
 
-				Image_Coherance_list = []
-				Image_Orientation_list = []
-				vx_list = []
-				vy_list = []
+				pass
 
-				for i in range(len(chunks)):
+				# padded_raw_image = generate_padded_image(raw_image, each_chunk_size)
+				# chunks = split_into_chunks(padded_raw_image, each_chunk_size)
 
-					current_chunk = chunks[i]
+				# Image_Coherance_list = []
+				# Image_Orientation_list = []
+				# vx_list = []
+				# vy_list = []
 
-					filtered_chunk = skimage.filters.gaussian(current_chunk,
-															sigma = FilterKey,
-															mode = 'nearest',
-															preserve_range = True)
+				# for i in range(len(chunks)):
 
-					# Calculate image gradients in X and Y directions
-					image_gradient_x, image_gradient_y = make_image_gradients(filtered_chunk)
+				# 	current_chunk = chunks[i]
 
-					# Calculate the structure tensor and solve for EigenValues, EigenVectors
+				# 	filtered_chunk = skimage.filters.gaussian(current_chunk,
+				# 											sigma = FilterKey,
+				# 											mode = 'nearest',
+				# 											preserve_range = True)
 
-					Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+				# 	# Calculate image gradients in X and Y directions
+				# 	image_gradient_x, image_gradient_y = make_image_gradients(filtered_chunk)
 
-					Image_Coherance = make_coherence(filtered_chunk, EigenValues, Structure_Tensor, ThresholdValueKey)
+				# 	# Calculate the structure tensor and solve for EigenValues, EigenVectors
 
-					Image_Orientation = make_orientation(filtered_chunk, Jxx, Jxy, Jyy, ThresholdValueKey)
-					vx, vy = make_vxvy(filtered_chunk, EigenVectors, ThresholdValueKey)
+				# 	Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
 
-					Image_Coherance_list.append(Image_Coherance)
-					Image_Orientation_list.append(Image_Orientation)
-					vx_list.append(vx)
-					vy_list.append(vy)
+				# 	Image_Coherance = make_coherence(filtered_chunk, EigenValues, Structure_Tensor, ThresholdValueKey)
 
-				###########################
+				# 	Image_Orientation = make_orientation(filtered_chunk, Jxx, Jxy, Jyy, ThresholdValueKey)
+				# 	vx, vy = make_vxvy(filtered_chunk, EigenVectors, ThresholdValueKey)
 
-				Image_Orientation = stitch_back_chunks(Image_Orientation_list, padded_raw_image, raw_image, each_chunk_size)
+				# 	Image_Coherance_list.append(Image_Coherance)
+				# 	Image_Orientation_list.append(Image_Orientation)
+				# 	vx_list.append(vx)
+				# 	vy_list.append(vy)
 
-				Image_Coherance = stitch_back_chunks(Image_Coherance_list, padded_raw_image, raw_image, each_chunk_size)
+				# ###########################
 
-				vx = stitch_back_chunks(vx_list, padded_raw_image, raw_image, each_chunk_size)
-				vy = stitch_back_chunks(vy_list, padded_raw_image, raw_image, each_chunk_size)
+				# Image_Orientation = stitch_back_chunks(Image_Orientation_list, padded_raw_image, raw_image, each_chunk_size)
 
-				time.sleep(ProgressBarTime)
-				ProgressBar.progress(float(5/6))
+				# Image_Coherance = stitch_back_chunks(Image_Coherance_list, padded_raw_image, raw_image, each_chunk_size)
 
-			else:
+				# vx = stitch_back_chunks(vx_list, padded_raw_image, raw_image, each_chunk_size)
+				# vy = stitch_back_chunks(vy_list, padded_raw_image, raw_image, each_chunk_size)
 
-				# Calculate image gradients in X and Y directions
-				image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
+				# time.sleep(ProgressBarTime)
+				# ProgressBar.progress(float(5/6))
 
-				###########################
+			# else:
 
-				# Calculate the structure tensor and solve for EigenValues, EigenVectors
-				Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+			# Calculate image gradients in X and Y directions
+			image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
 
-				###########################
+			###########################
 
-				# Calculate Coherence
+			# Calculate the structure tensor and solve for EigenValues, EigenVectors
+			Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
 
-				Image_Coherance = make_coherence(filtered_image, EigenValues, Structure_Tensor, ThresholdValueKey)
+			###########################
 
-				###########################
+			# Calculate Coherence
 
-				# Calculate Orientation
-				Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
-				vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
+			Image_Coherance = make_coherence(filtered_image, EigenValues, Structure_Tensor, ThresholdValueKey)
 
-				time.sleep(ProgressBarTime)
-				ProgressBar.progress(float(5/6))
+			###########################
+
+			# Calculate Orientation
+			Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
+			vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
+
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(5/6))
 
 			###########################
 
@@ -345,8 +347,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			im = plt.imshow(plt.cm.gray(raw_image/raw_image.max()) * plt.cm.Spectral_r(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
 			#im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'Spectral_r')
+			im = plt.imshow(plt.cm.gray(binarized_image/binarized_image.max()) * plt.cm.Spectral_r(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
 
 			plt.title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
@@ -366,8 +368,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			im = plt.imshow(plt.cm.gray(raw_image/raw_image.max()) * plt.cm.hsv(Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
 			#im = plt.imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
+			im = plt.imshow(plt.cm.gray(binarized_image/binarized_image.max()) * plt.cm.hsv(Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
 
 			plt.title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
