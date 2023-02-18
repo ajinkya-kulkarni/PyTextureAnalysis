@@ -32,6 +32,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 import os
 import time
+
 from io import BytesIO
 
 import sys
@@ -44,19 +45,7 @@ sys.tracebacklimit = 0
 
 ########################################################################################
 
-from make_binarization import *
-from make_chunks import *
-from make_circular_variance import *
-from make_coherence import *
-from make_convolution import *
-from make_image_gradients import *
-from make_mosiac import *
-from make_orientation import *
-from make_padded_image import *
-from make_structure_tensor_2d import *
-from make_vxvy import *
-from read_image import *
-from stitch_chunks import *
+from modules import *
 
 ########################################################################################
 
@@ -195,7 +184,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			each_chunk_size = int(LocalSigmaKey)
 
-			Trigger_for_chunks = 10
+			Trigger_for_chunks = 20
 
 			if each_chunk_size >= Trigger_for_chunks:
 				padded_raw_image = generate_padded_image(raw_image, each_chunk_size)
