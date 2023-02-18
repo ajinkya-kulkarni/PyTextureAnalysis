@@ -186,7 +186,9 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			Trigger_for_chunks = 20
 
-			if each_chunk_size >= Trigger_for_chunks:
+			# Trigger for evaluating the images as chunks. Currently activated only for each_chunk_size > 20, or if the 2D input image is bigger than 600x600 pixels.
+
+			if ((each_chunk_size >= Trigger_for_chunks) or (min(raw_image.shape[0], raw_image.shape[1]) > 600)):
 				padded_raw_image = generate_padded_image(raw_image, each_chunk_size)
 				chunks = split_into_chunks(padded_raw_image, each_chunk_size)
 
