@@ -302,9 +302,9 @@ with st.form(key = 'form1', clear_on_submit = False):
 		with middle_column3:
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'Greys_r')
+			im = plt.imshow(binarized_image, vmin = 0, vmax = 1, cmap = 'binary_r')
 
-			plt.title('Filtered Image', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.title('Binarized Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
 
@@ -350,7 +350,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 			#im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'Spectral_r')
 			im = plt.imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.Spectral_r(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
 			
-			plt.suptitle('Coherence. \n0 is highly disorganized, 1 is highly origanized', ha='center', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
 
