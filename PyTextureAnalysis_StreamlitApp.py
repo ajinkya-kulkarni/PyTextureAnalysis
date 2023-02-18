@@ -283,7 +283,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 		with left_column3:
 	
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Greys_r')
+			im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'binary')
 
 			plt.title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
