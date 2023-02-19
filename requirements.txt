@@ -1,6 +1,6 @@
 NumPy >=1.18,<1.22
 numba==0.55.0
-opencv-python
+opencv-python-headless
 scikit-image
 matplotlib
 Pillow
