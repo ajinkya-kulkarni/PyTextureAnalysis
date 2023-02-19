@@ -1,8 +1,9 @@
 NumPy >=1.18,<1.22
+llvmlite==0.38
+sciPy>=1.0.0
 numba==0.55.0
 opencv-python-headless
 scikit-image
 matplotlib
 Pillow
-scipy
 tqdm
