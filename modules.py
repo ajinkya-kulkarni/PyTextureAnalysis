@@ -134,6 +134,7 @@ def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
 	Returns:
 	- Coherence_Array (numpy.ndarray): An array containing the coherence values for the input image.
 	"""
+	
 	Coherence_Array = np.full(input_image.shape, np.nan)
 
 	# Check if the sum of the EigenValues of the Structure_Tensor is greater than 0
