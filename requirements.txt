@@ -1,7 +1,5 @@
-numpy==1.21.6
-llvmlite==0.38
-scipy>=1.0.0
-numba==0.55.0
+numpy
+scipy
 opencv-python-headless
 scikit-image
 matplotlib

@@ -20,7 +20,7 @@
 
 ########################################################################################
 
- # This file contains all the modules/functions necessary for running the streamlit application or the example notebooks.
+# This file contains all the modules/functions necessary for running the streamlit application or the example notebooks.
 
 ########################################################################################
 
@@ -35,7 +35,6 @@ from scipy import ndimage
 from skimage.filters import threshold_mean
 
 import matplotlib.pyplot as plt
-from numba import jit
 
 ########################################################################################
 
@@ -66,30 +65,30 @@ def binarize_image(image):
 ########################################################################################
 
 def split_into_chunks(img, chunk_size):
-    """
-    Splits a 2D grayscale image into chunks of a given size.
+	"""
+	Splits a 2D grayscale image into chunks of a given size.
 
-    Parameters:
-        img (numpy.ndarray): The input 2D grayscale image.
-        chunk_size (int): The size of the chunks to split
-        the image into.
-        overlap_pixels (int): The overlap between chunks,
-        in pixels.
+	Parameters:
+		img (numpy.ndarray): The input 2D grayscale image.
+		chunk_size (int): The size of the chunks to split
+		the image into.
+		overlap_pixels (int): The overlap between chunks,
+		in pixels.
 
-    Returns:
-        list: A list of chunks, each of
-        size chunk_size x chunk_size.
-        numpy.ndarray: The padded image, with
-        size padded_size x padded_size, where padded_size is a multiple of chunk_size.
-    """
-    # Divide the image into chunks
-    chunks = []
-    for i in range(0, img.shape[0] - chunk_size + 1, chunk_size):
-        for j in range(0, img.shape[1] - chunk_size + 1, chunk_size ):
-            chunk = img[i:i + chunk_size, j:j + chunk_size]
-            chunks.append(chunk)
+	Returns:
+		list: A list of chunks, each of
+		size chunk_size x chunk_size.
+		numpy.ndarray: The padded image, with
+		size padded_size x padded_size, where padded_size is a multiple of chunk_size.
+	"""
+	# Divide the image into chunks
+	chunks = []
+	for i in range(0, img.shape[0] - chunk_size + 1, chunk_size):
+		for j in range(0, img.shape[1] - chunk_size + 1, chunk_size ):
+			chunk = img[i:i + chunk_size, j:j + chunk_size]
+			chunks.append(chunk)
 
-    return chunks
+	return chunks
 
 ########################################################################################
 
@@ -122,7 +121,6 @@ def circular_variance(angles):
 
 ########################################################################################
 
-@jit
 def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
 	"""
 	Calculate coherence values for a given input image, eigenvalues, structure tensor, and threshold value.
@@ -135,29 +133,18 @@ def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
 
 	Returns:
 	- Coherence_Array (numpy.ndarray): An array containing the coherence values for the input image.
-
 	"""
-
 	Coherence_Array = np.full(input_image.shape, np.nan)
 
-	for j in range(input_image.shape[1]):
+	# Check if the sum of the EigenValues of the Structure_Tensor is greater than 0
+	mask = (input_image >= threshold_value) & (eigenvalues.sum(axis=2) > 0)
 
-		for i in range(input_image.shape[0]):
+	trace = np.trace(Structure_Tensor, axis1=2, axis2=3)
+	Smallest_Normalized_Eigenvalues = eigenvalues[:, :, 0] / trace
+	Largest_Normalized_Eigenvalues = eigenvalues[:, :, 1] / trace
 
-			# Check if the sum of the EigenValues of the Structure_Tensor is greater than 0
-
-			if ( (input_image[i, j] >= threshold_value ) and ((eigenvalues[i, j].sum()) > 0) ) :
-
-				trace = np.trace(Structure_Tensor[i, j])
-
-				Smallest_Normalized_Eigenvalues = eigenvalues[i, j][0] / trace
-
-				Largest_Normalized_Eigenvalues = eigenvalues[i, j][1] / trace
-
-				Coherence_Array[i, j] = np.abs((Largest_Normalized_Eigenvalues -
-												Smallest_Normalized_Eigenvalues) /
-												(Smallest_Normalized_Eigenvalues +
-												Largest_Normalized_Eigenvalues))
+	# Compute the coherence values using np.where
+	Coherence_Array = np.where(mask, np.abs((Largest_Normalized_Eigenvalues - Smallest_Normalized_Eigenvalues) / (Smallest_Normalized_Eigenvalues + Largest_Normalized_Eigenvalues)), Coherence_Array)
 
 	return Coherence_Array
 
@@ -238,28 +225,28 @@ def make_image_gradients(image, filter=None):
 ########################################################################################
 
 def show_mosaic(chunks, cmap = 'viridis'):
-    """
-    Shows a mosaic of the original image, constructed from its chunks, as n x n subplots with reduced borders.
+	"""
+	Shows a mosaic of the original image, constructed from its chunks, as n x n subplots with reduced borders.
 
-    Parameters:
-        img (numpy.ndarray): The input 2D grayscale image.
-        chunks (list): A list of chunks, each of size chunk_size x chunk_size.
-        overlap_pixels (int): The overlap between chunks, in pixels.
-    """
+	Parameters:
+		img (numpy.ndarray): The input 2D grayscale image.
+		chunks (list): A list of chunks, each of size chunk_size x chunk_size.
+		overlap_pixels (int): The overlap between chunks, in pixels.
+	"""
 
-    # Calculate the number of rows and columns
-    n = int(np.ceil(np.sqrt(len(chunks))))
+	# Calculate the number of rows and columns
+	n = int(np.ceil(np.sqrt(len(chunks))))
 
-    fig, axs = plt.subplots(n, n, figsize=(8, 8))
-    plt.subplots_adjust(wspace=0.05, hspace=0.05)
-    for i, chunk in enumerate(chunks):
-        row = i // n
-        col = i % n
-        axs[row, col].imshow(chunk, cmap = cmap)
-        axs[row, col].set_xticks([])
-        axs[row, col].set_yticks([])
+	fig, axs = plt.subplots(n, n, figsize=(8, 8))
+	plt.subplots_adjust(wspace=0.05, hspace=0.05)
+	for i, chunk in enumerate(chunks):
+		row = i // n
+		col = i % n
+		axs[row, col].imshow(chunk, cmap = cmap)
+		axs[row, col].set_xticks([])
+		axs[row, col].set_yticks([])
 
-    plt.show()
+	plt.show()
 
 ########################################################################################
 
@@ -297,25 +284,25 @@ def make_orientation(input_image, Jxx, Jxy, Jyy, threshold_value):
 ########################################################################################
 
 def generate_padded_image(img, chunk_size):
-    """
-    Generate a padded image that is square and a multiple of the chunk size.
+	"""
+	Generate a padded image that is square and a multiple of the chunk size.
 
-    Parameters:
-        img (numpy.ndarray): The input image.
-        chunk_size (int): The size of the chunks used for analyzing the image.
+	Parameters:
+		img (numpy.ndarray): The input image.
+		chunk_size (int): The size of the chunks used for analyzing the image.
 
-    Returns:
-        numpy.ndarray: The padded image.
-    """
+	Returns:
+		numpy.ndarray: The padded image.
+	"""
 
-    # Pad the image to make it square and a multiple of chunk_size
-    max_size = max(img.shape)
-    padded_size = max_size + (chunk_size - max_size % chunk_size) % chunk_size
+	# Pad the image to make it square and a multiple of chunk_size
+	max_size = max(img.shape)
+	padded_size = max_size + (chunk_size - max_size % chunk_size) % chunk_size
 
-    padded_img = np.zeros((padded_size, padded_size))
-    padded_img[:img.shape[0], :img.shape[1]] = img
+	padded_img = np.zeros((padded_size, padded_size))
+	padded_img[:img.shape[0], :img.shape[1]] = img
 
-    return padded_img
+	return padded_img
 
 ########################################################################################
 
@@ -413,41 +400,41 @@ def convert_to_8bit_grayscale(filename):
 ########################################################################################
 
 def stitch_back_chunks(analyzed_chunk_list, padded_img, img, chunk_size):
-    """
-    Reconstruct an image from a list of analyzed image chunks.
+	"""
+	Reconstruct an image from a list of analyzed image chunks.
 
-    Parameters:
-        analyzed_chunk_list (list): A list of the analyzed image chunks.
-        padded_img (numpy.ndarray): A padded version of the input image.
-        img (numpy.ndarray): The original input image.
-        chunk_size (int): The size of the chunks used for analyzing the image.
+	Parameters:
+		analyzed_chunk_list (list): A list of the analyzed image chunks.
+		padded_img (numpy.ndarray): A padded version of the input image.
+		img (numpy.ndarray): The original input image.
+		chunk_size (int): The size of the chunks used for analyzing the image.
 
-    Returns:
-        numpy.ndarray: The reconstructed image.
-    """
+	Returns:
+		numpy.ndarray: The reconstructed image.
+	"""
 
-    # Calculate the number of chunks in each dimension
-    num_chunks = padded_img.shape[0] // chunk_size
+	# Calculate the number of chunks in each dimension
+	num_chunks = padded_img.shape[0] // chunk_size
 
-    # Initialize a new NumPy array for the reconstructed image
-    reconstructed_img = np.zeros((padded_img.shape))
+	# Initialize a new NumPy array for the reconstructed image
+	reconstructed_img = np.zeros((padded_img.shape))
 
-    # Iterate over each chunk and copy it back to the correct location in the reconstructed image
-    for i in range(len(analyzed_chunk_list)):
-        row = i // num_chunks
-        col = i % num_chunks
+	# Iterate over each chunk and copy it back to the correct location in the reconstructed image
+	for i in range(len(analyzed_chunk_list)):
+		row = i // num_chunks
+		col = i % num_chunks
 
-        chunk = analyzed_chunk_list[i]
-        start_row = row * chunk_size
-        end_row = start_row + chunk_size
+		chunk = analyzed_chunk_list[i]
+		start_row = row * chunk_size
+		end_row = start_row + chunk_size
 
-        start_col = col * chunk_size
-        end_col = start_col + chunk_size
-        reconstructed_img[start_row:end_row, start_col:end_col] = chunk
+		start_col = col * chunk_size
+		end_col = start_col + chunk_size
+		reconstructed_img[start_row:end_row, start_col:end_col] = chunk
 
-    # Crop the reconstructed image to the size of the original input image
-    reconstructed_img = reconstructed_img[:img.shape[0], :img.shape[1]]
+	# Crop the reconstructed image to the size of the original input image
+	reconstructed_img = reconstructed_img[:img.shape[0], :img.shape[1]]
 
-    return reconstructed_img
+	return reconstructed_img
 
 ########################################################################################
