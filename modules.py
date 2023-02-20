@@ -32,13 +32,16 @@ import cv2
 
 import scipy.ndimage
 from scipy import ndimage
+
 from skimage.filters import threshold_mean
+from skimage.morphology import disk
+from skimage.filters import rank
 
 import matplotlib.pyplot as plt
 
 ########################################################################################
 
-def binarize_image(image):
+def binarize_image(image, radius = 15):
 	"""
 	This function checks if the input image is 2D and returns a binary image based on a threshold value.
 
@@ -56,7 +59,12 @@ def binarize_image(image):
 	if len(image.shape) != 2:
 		raise ValueError("Input should be a 2D image.")
 
-	threshold_value = threshold_mean(image)
+	image = image.astype('uint8')
+
+	selem = disk(radius)
+	threshold_value = rank.otsu(image, selem)
+
+	# threshold_value = threshold_mean(image)
 
 	binary_image = image > threshold_value
 
