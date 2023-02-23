@@ -4,6 +4,8 @@ PyTextureAnalysis is a Python package (inspired from http://bigwww.epfl.ch/demo/
 
 ## Demo
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://textureinformation-package.streamlit.app/)
+
 A web application develped using `Streamlit`(https://streamlit.io/) is available at https://textureinformation-package.streamlit.app/ or have a look at the `Example.ipynb` file to get an idea how to use the package to extract and visualize local fibre orientation and organization.
 
 ![alt text](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp.jpg)
