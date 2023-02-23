@@ -4,7 +4,8 @@
 # Copyright (C) 2022 Max Planck Institute for Multidisclplinary Sciences
 # Copyright (C) 2022 University Medical Center Goettingen
 # Copyright (C) 2022 Ajinkya Kulkarni <ajinkya.kulkarni@mpinat.mpg.de>
-#
+# Copyright (C) 2022 Bharti Arora <bharti.arora@mpinat.mpg.de>
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -69,6 +70,37 @@ def binarize_image(image, radius = 15):
 	binary_image = image > threshold_value
 
 	return binary_image
+
+########################################################################################
+
+def percentage_area(image):
+    """
+    Calculate the percentage of nonzero pixels in a 2D binary image.
+
+    Parameters:
+        image (np.array): Input image to be quantified.
+
+    Returns:
+        np.array: Returns a value corresponding to the percentage of nonzero pixels
+
+    Raises:
+        ValueError: If the input image is not 2D or not binary.
+    """
+	# Check if the input image is 2D
+	if len(image.shape) != 2:
+		raise ValueError("Input should be a 2D image.")
+
+	# Check if the input image is binary
+	if len(np.unique(image)) != 2:
+		raise ValueError("Input should be a 2D binarized image.")
+
+	non_zero_pixels = np.count_nonzero(image)
+
+	image_size = image.shape[0] * image.shape[1]
+
+	percentage_area = np.round(100 * non_zero_pixels / image_size, 1)
+
+	return percentage_area
 
 ########################################################################################
 

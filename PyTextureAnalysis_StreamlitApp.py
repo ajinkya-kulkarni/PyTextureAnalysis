@@ -166,6 +166,9 @@ with st.form(key = 'form1', clear_on_submit = False):
 			# Binarize the image
 			binarized_image = binarize_image(filtered_image, radius = 20)
 
+			# Calculate the percentage area of the non-zero pixels
+			percentage = percentage_area(binarized_image)
+
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(3/6))
 
@@ -326,7 +329,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 			im = plt.imshow(Local_Density, vmin = 0, vmax = 1, cmap = 'Spectral_r')
 
-			plt.title('Local Density', pad = PAD, fontsize = FONTSIZE_TITLE)
+			plt.title('Local Density, ' + str(percentage) + '% fibrotic', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
 			plt.yticks([])
 
@@ -350,8 +353,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			#im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'Spectral_r')
-			im = plt.imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.Spectral_r(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
+			im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'Spectral_r')
+			# im = plt.imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.Spectral_r(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
 			# im = plt.imshow((raw_image/raw_image.max()) * (Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
 
 			plt.title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
@@ -372,9 +375,9 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
 
-			#im = plt.imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
-			im = plt.imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.hsv(Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
-			# im = plt.imshow((binarized_image/binarized_image.max()) * (Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
+			im = plt.imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
+			# im = plt.imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.hsv(Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
+			# im = plt.imshow((raw_image/raw_image.max()) * (Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
 
 			plt.title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
 			plt.xticks([])
