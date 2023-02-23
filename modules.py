@@ -74,18 +74,18 @@ def binarize_image(image, radius = 15):
 ########################################################################################
 
 def percentage_area(image):
-    """
-    Calculate the percentage of nonzero pixels in a 2D binary image.
+	"""
+	Calculate the percentage of nonzero pixels in a 2D binary image.
 
-    Parameters:
-        image (np.array): Input image to be quantified.
+	Parameters:
+		image (np.array): Input image to be quantified.
 
-    Returns:
-        np.array: Returns a value corresponding to the percentage of nonzero pixels
+	Returns:
+		np.array: Returns a value corresponding to the percentage of nonzero pixels
 
-    Raises:
-        ValueError: If the input image is not 2D or not binary.
-    """
+	Raises:
+		ValueError: If the input image is not 2D or not binary.
+	"""
 	# Check if the input image is 2D
 	if len(image.shape) != 2:
 		raise ValueError("Input should be a 2D image.")
