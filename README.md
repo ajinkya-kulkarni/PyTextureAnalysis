@@ -1,3 +1,5 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 # Texture Analysis using PyTextureAnalysis
 
 PyTextureAnalysis is a Python package that contains tools to analyze the texture of images. This code contains functions to calculate the local orientation of fibers in an image, as well as the degree of coherence. A web application is also available for demonstrating the PyTextureAnalysis package, which allows users to analyze 2D grayscale images for texture analysis.
