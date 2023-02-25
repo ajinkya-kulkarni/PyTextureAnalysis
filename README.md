@@ -1,4 +1,5 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://textureinformation-package.streamlit.app/)
 
 # Texture Analysis using PyTextureAnalysis
 
@@ -12,8 +13,6 @@ PyTextureAnalysis is a Python package that contains tools to analyze the texture
 - Provides a progress bar for each stage of the analysis
 
 ## Demo
-
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://textureinformation-package.streamlit.app/)
 
 A web application developed using `Streamlit` is available at https://textureinformation-package.streamlit.app/. Check out the `Example.ipynb` file to learn how to use the package to extract and visualize local fiber orientation and organization.
 
