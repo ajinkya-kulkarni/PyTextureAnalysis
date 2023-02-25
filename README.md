@@ -41,7 +41,7 @@ A web application developed using `Streamlit` is available at https://textureinf
 6. View the results of the analysis.
 
 ## Credits
-This web application was developed, tested, and maintained by Ajinkya Kulkarni at the Max Planck Institute for Dynamics and Self-Organization, Göttingen.
+This web application was developed, tested, and maintained by Ajinkya Kulkarni at the Max Planck Institute for Multidisciplinary Sciences, Göttingen.
 
 ## Contact
 For more information or to provide feedback, please visit the project repository or contact the developer directly.
