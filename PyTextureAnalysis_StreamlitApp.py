@@ -60,7 +60,7 @@ st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, la
 
 st.title(':blue[Texture analysis using PyTextureAnalysis]')
 st.caption('For more information or to give feedback, visit https://github.com/ajinkya-kulkarni/PyTextureAnalysis', unsafe_allow_html = False)
-
+st.write("For information regarding using this application, visit this [link](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp.jpg)")
 st.markdown("")
 
 ########################################################################################
