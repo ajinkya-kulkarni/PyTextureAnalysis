@@ -104,6 +104,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 	st.markdown("")
 
 	submitted = st.form_submit_button('Analyze')
+	
+	st.markdown("")
 
 	####################################################################################
 
