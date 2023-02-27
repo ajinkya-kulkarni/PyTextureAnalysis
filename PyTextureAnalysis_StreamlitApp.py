@@ -105,8 +105,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 	submitted = st.form_submit_button('Analyze')
 
-	st.markdown("""---""")
-
 	####################################################################################
 
 	if uploaded_file is None:
