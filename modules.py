@@ -714,11 +714,11 @@ def load_pandas_dataframe(results_array):
 	"""
 	dataframe =  pd.DataFrame({
 		"Uploaded Image": results_array[:, 0],
-		"Mean Orientation": results_array[:, 1],
-		"Circular Mean Orientation": results_array[:, 2],
-		"Standard Deviation Orientation": results_array[:, 3],
-		"Circular Standard Deviation Orientation": results_array[:, 4],
-		"Circular Variance": results_array[:, 5],
+		"Mean Orientation [degrees]": results_array[:, 1],
+		"Circular Mean Orientation [degrees]": results_array[:, 2],
+		"Standard Deviation Orientation [degrees]": results_array[:, 3],
+		"Circular Standard Deviation Orientation [degrees]": results_array[:, 4],
+		"Circular Variance Orientation [degrees]": results_array[:, 5],
 		"Mean Coherance": results_array[:, 6],
 		"Median Coherance": results_array[:, 7],
 		"Standard Deviation Coherance": results_array[:, 8],
