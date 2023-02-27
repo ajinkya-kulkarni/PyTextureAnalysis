@@ -480,7 +480,7 @@ def stitch_back_chunks(analyzed_chunk_list, padded_img, img, chunk_size):
 
 ########################################################################################
 
-def perform_statistical_analysis(LocalSigmaKey, Image_Orientation, Image_Coherance):
+def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance):
 
 	Image_Orientation_rad = np.deg2rad(Image_Orientation)
 
@@ -516,7 +516,7 @@ def perform_statistical_analysis(LocalSigmaKey, Image_Orientation, Image_Coheran
 
 	results_array = np.asarray((folder_list[i][:-1], round(NormalMean, 2), round(CircMean, 2), round(NormalStdDev, 2), round(CircStdDev, 2), round(CircVar, 2), round(np.nanmean(Image_Coherance_temp), 2), round(np.nanmedian(Image_Coherance_temp), 2), round(np.nanstd(Image_Coherance_temp), 2), low_coherance, high_coherance))
 
-	np.savetxt('Results_LocalSigma_' + str(LocalSigmaKey) + '.csv', array, fmt = "%s", delimiter = ',', header = "Specimen, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
+	np.savetxt('Results_' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.csv', array, fmt = "%s", delimiter = ',', header = "Specimen, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
 
 	############################################################
 
