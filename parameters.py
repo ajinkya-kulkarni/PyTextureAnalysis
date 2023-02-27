@@ -51,12 +51,12 @@ ScaleKey = 40
 
 # Plotting parameters
 
-FIGSIZE = (8, 6)
-PAD = 10
-FONTSIZE_TITLE = 15
-DPI = 200
+FIGSIZE = (15, 8)
+PAD = 5
+FONTSIZE_TITLE = 14
+DPI = 500
 
-aspect = 40
+aspect = 30
 pad_fraction = 0.5
 
 ########################################################################################

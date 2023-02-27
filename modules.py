@@ -29,17 +29,18 @@ from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 
 import numpy as np
-import cv2
 
-import scipy.ndimage
 from scipy import ndimage
 from scipy.stats import circmean, circstd
+from scipy import signal
 
-from skimage.filters import threshold_mean
+from skimage.filters import threshold_mean, gaussian
 from skimage.morphology import disk
 from skimage.filters import rank
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1 import axes_size
 
 ########################################################################################
 
@@ -71,6 +72,25 @@ def binarize_image(image, radius = 15):
 	binary_image = image > threshold_value
 
 	return binary_image
+
+########################################################################################
+
+def make_filtered_image(input_image, filter_sigma):
+	"""
+	Applies a Gaussian filter to an input image.
+
+	Parameters:
+	input_image (ndarray): a NumPy array representing the input image to be filtered.
+	filter_sigma (float): a numeric value representing the standard deviation of the Gaussian filter.
+	filter_mode (str): a string representing the mode of the Gaussian filter (default: 'nearest').
+	preserve_range (bool): a boolean value indicating whether to preserve the data range of the input image (default: True).
+
+	Returns:
+	filtered_image (ndarray): a NumPy array representing the filtered image.
+	"""
+	filtered_image = gaussian(input_image, sigma = filter_sigma, mode = 'nearest', preserve_range = True)
+
+	return filtered_image
 
 ########################################################################################
 
@@ -201,7 +221,7 @@ def convolve(image, kernel):
 		np.ndarray: binary image after convolution
 	"""
 
-	# Convert the input image to a valid data type in OpenCV
+	# Convert the input image to a valid data type
 	image = np.array(image, dtype=np.float32)
 
 	# Get the shape of the image
@@ -221,13 +241,13 @@ def convolve(image, kernel):
 	# Pad the image with the pixels along the edges
 	pad_h = int((k_h - 1) / 2)
 	pad_w = int((k_w - 1) / 2)
-	image = cv2.copyMakeBorder(image, pad_h, pad_h, pad_w, pad_w, cv2.BORDER_CONSTANT, None, 0)
+	image = np.pad(image, ((pad_h, pad_h), (pad_w, pad_w)), mode='constant', constant_values=0)
 
 	# Get the total number of elements in the kernel
 	total_elements = k_h * k_w
 
 	# Perform convolution
-	result = cv2.filter2D(image, -1, kernel / total_elements, borderType=cv2.BORDER_CONSTANT)
+	result = signal.convolve2d(image, kernel / total_elements, mode='same', boundary='fill', fillvalue=0)
 
 	return result[pad_h:-pad_h, pad_w:-pad_w]
 
@@ -314,8 +334,8 @@ def make_orientation(input_image, Jxx, Jxy, Jyy, threshold_value):
 	if not isinstance(threshold_value, (float, int)):
 		raise ValueError("Threshold value must be a number")
 
-	Orientation = 0.5 * ( cv2.phase( (Jyy - Jxx), (2 * Jxy), angleInDegrees = True) )
-
+	Orientation = 0.5 * np.arctan2(2 * Jxy, Jxx - Jyy) * 180 / np.pi
+	Orientation[Orientation < 0] += 180
 	Orientation[input_image < threshold_value] = np.nan
 
 	return Orientation
@@ -368,9 +388,9 @@ def make_structure_tensor_2d(image_gradient_x, image_gradient_y, local_sigma):
 	if not isinstance(local_sigma, (float, int)) or local_sigma <= 0:
 		raise ValueError("local_sigma must be a positive number")
 
-	Jxx = scipy.ndimage.gaussian_filter(image_gradient_x * image_gradient_x, local_sigma, mode = 'nearest')
-	Jxy = scipy.ndimage.gaussian_filter(image_gradient_x * image_gradient_y, local_sigma, mode = 'nearest')
-	Jyy = scipy.ndimage.gaussian_filter(image_gradient_y * image_gradient_y, local_sigma, mode = 'nearest')
+	Jxx = ndimage.gaussian_filter(image_gradient_x * image_gradient_x, local_sigma, mode = 'nearest')
+	Jxy = ndimage.gaussian_filter(image_gradient_x * image_gradient_y, local_sigma, mode = 'nearest')
+	Jyy = ndimage.gaussian_filter(image_gradient_y * image_gradient_y, local_sigma, mode = 'nearest')
 
 	Raw_Structure_Tensor = np.array([[Jxx, Jxy], [Jxy, Jyy]])
 
@@ -412,7 +432,7 @@ def make_vxvy(input_image, eigenvectors, threshold_value):
 
 def convert_to_8bit_grayscale(filename):
 	"""
-	Read an image from a file using Pillow and return the 8-bit grayscale version of the image using OpenCV.
+	Read an image from a file using Pillow and return the 8-bit grayscale version of the image using NumPy.
 	If the image is already 8-bit grayscale, return the image without modification.
 
 	Parameters:
@@ -432,7 +452,8 @@ def convert_to_8bit_grayscale(filename):
 		raise ValueError("Input image must be 2D grayscale.")
 
 	# Normalize the image
-	img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+	img = (img - np.min(img)) * (255 / (np.max(img) - np.min(img)))
+	img = img.astype(np.uint8)
 
 	return img
 
@@ -520,5 +541,146 @@ def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Ima
 	# Save the results in a CSV file
 	with open(f"Results_{filename}_LocalSigma_{LocalSigmaKey}.csv", "w") as f:
 		np.savetxt(f, results_array, fmt="%s", delimiter=",", header="Filename, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
+
+########################################################################################
+
+def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, percentage, SpacingKey, ScaleKey, FIGSIZE, DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect):
+	"""
+	Creates a mosaic plot of an image analysis with six subplots representing different aspects of the image.
+
+	Parameters:
+	raw_image (ndarray): the original image as a NumPy array.
+	binarized_image (ndarray): a binary version of the image as a NumPy array.
+	filtered_image (ndarray): a filtered version of the image as a NumPy array.
+	Local_Density (ndarray): a density map of the image as a NumPy array.
+	Image_Coherance (ndarray): a coherence map of the image as a NumPy array.
+	Image_Orientation (ndarray): an orientation map of the image as a NumPy array.
+	vx (ndarray): x-component of the local orientation vector as a NumPy array.
+	vy (ndarray): y-component of the local orientation vector as a NumPy array.
+	filename (str): a string representing the name of the file being analyzed.
+	LocalSigmaKey (float): a numeric value representing the local sigma of the filter used.
+	percentage (float): a numeric value representing the percentage of fibrotic tissue in the image.
+	SpacingKey (int): a numeric value representing the spacing of the local orientation vectors.
+	ScaleKey (float): a numeric value representing the scale of the local orientation vectors.
+	FIGSIZE (tuple): a tuple representing the size of the figure in inches.
+	DPI (int): a numeric value representing the resolution of the figure in dots per inch.
+	PAD (float): a numeric value representing the padding of the subplot titles.
+	FONTSIZE_TITLE (int): a numeric value representing the font size of the subplot titles.
+	pad_fraction (float): a numeric value representing the fraction of the padding for the colorbar.
+	aspect (float): a numeric value representing the aspect ratio of the subplots.
+
+	Returns:
+	Fig object.
+
+	Returns a figure with six subplots arranged in a 2x3 grid that represent different aspects of an image analysis. Each subplot has a colorbar that shows the color scale for that particular subplot.
+	"""
+
+	fig, axes = plt.subplot_mosaic("ABC;DEF", figsize=FIGSIZE, constrained_layout=True, dpi=DPI)
+
+	###########################
+
+	im = axes["A"].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'binary')
+	axes["A"].set_title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
+	axes["A"].set_xticks([])
+	axes["A"].set_yticks([])
+
+	divider = make_axes_locatable(axes["A"])
+	width = axes_size.AxesY(axes["A"], aspect=1./aspect)
+	pad = axes_size.Fraction(pad_fraction, width)
+	cax = divider.append_axes("right", size=width, pad=pad)
+	cbar = plt.colorbar(im, cax=cax)
+	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+	###########################
+
+	im = axes["B"].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'binary')
+	axes["B"].set_title('Filtered Image', pad = PAD, fontsize = FONTSIZE_TITLE)
+	axes["B"].set_xticks([])
+	axes["B"].set_yticks([])
+
+	divider = make_axes_locatable(axes["B"])
+	width = axes_size.AxesY( axes["B"], aspect=1./aspect)
+	pad = axes_size.Fraction(pad_fraction, width)
+	cax = divider.append_axes("right", size=width, pad=pad)
+	cbar = plt.colorbar(im, cax=cax)
+	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+	###########################
+
+	im =  axes["C"].imshow(Local_Density, vmin = 0, vmax = 1, cmap = 'Spectral_r')
+
+	axes["C"].set_title('Local Density, ' + str(percentage) + '% fibrotic', pad = PAD, fontsize = FONTSIZE_TITLE)
+	axes["C"].set_xticks([])
+	axes["C"].set_yticks([])
+
+	divider = make_axes_locatable(axes["C"])
+	width = axes_size.AxesY(axes["C"], aspect=1./aspect)
+	pad = axes_size.Fraction(pad_fraction, width)
+	cax = divider.append_axes("right", size=width, pad=pad)
+	cbar = plt.colorbar(im, cax=cax)
+	cbar.formatter.set_powerlimits((0, 0))
+	# cbar.formatter.set_useMathText(True)
+	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+	###########################
+
+	im = axes["D"].imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'Spectral_r')
+	# im = axes["D"].imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.Spectral_r(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
+	# im = axes["D"].imshow((raw_image/raw_image.max()) * (Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
+
+	axes["D"].set_title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
+	axes["D"].set_xticks([])
+	axes["D"].set_yticks([])
+
+	divider = make_axes_locatable(axes["D"])
+	width = axes_size.AxesY(axes["D"], aspect=1./aspect)
+	pad = axes_size.Fraction(pad_fraction, width)
+	cax = divider.append_axes("right", size=width, pad=pad)
+	cbar = plt.colorbar(im, cax=cax)
+	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+	###########################
+
+	im = axes["E"].imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
+	# im = axes["E"].imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.hsv(Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
+	# im = axes["E"].imshow((raw_image/raw_image.max()) * (Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
+
+	axes["E"].set_title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
+	axes["E"].set_xticks([])
+	axes["E"].set_yticks([])
+
+	divider = make_axes_locatable(axes["E"])
+	width = axes_size.AxesY(axes["E"], aspect=1./aspect)
+	pad = axes_size.Fraction(pad_fraction, width)
+	cax = divider.append_axes("right", size=width, pad=pad)
+	cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
+	cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
+	ticklabs = cbar.ax.get_yticklabels()
+	cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
+
+	###########################
+
+	im = axes["F"].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Oranges', alpha = 0.8)
+
+	xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
+
+	axes["F"].quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
+	scale = ScaleKey, headlength = 0, headaxislength = 0, 
+	pivot = 'middle', color = 'black', angles = 'xy')
+
+	axes["F"].set_title('Local Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
+	axes["F"].set_xticks([])
+	axes["F"].set_yticks([])
+
+	divider = make_axes_locatable(axes["F"])
+	width = axes_size.AxesY(axes["F"], aspect=1./aspect)
+	pad = axes_size.Fraction(pad_fraction, width)
+	cax = divider.append_axes("right", size=width, pad=pad)
+	cbar = plt.colorbar(im, cax=cax)
+	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+
+	###########################
+
+	return fig
 
 ########################################################################################

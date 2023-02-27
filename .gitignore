@@ -1,8 +1,2 @@
-
-.ipynb_checkpoints/Example-checkpoint.ipynb
-.ipynb_checkpoints/Example-checkpoint.ipynb
-.ipynb_checkpoints/Example-checkpoint.ipynb
-*.png
 .DS_Store
-.ipynb_checkpoints/ChunkProcessingExample-checkpoint.ipynb
-.ipynb_checkpoints/BasicExample-checkpoint.ipynb
+.ipynb_checkpoints/*

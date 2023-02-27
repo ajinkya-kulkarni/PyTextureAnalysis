@@ -26,22 +26,12 @@
 ########################################################################################
 
 import numpy as np
-import cv2 as cv
-import skimage as skimage
-from PIL import Image
-
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
-
-import os
-import time
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 import sys
-
 # Don't generate the __pycache__ folder locally
 sys.dont_write_bytecode = True 
-
 # Print exception without the buit-in python warning
 sys.tracebacklimit = 0 
 
@@ -54,15 +44,13 @@ from parameters import *
 
 print()
 
-pbar = tqdm(total=16, desc = 'Analyzing', colour="#2ca02c")
+pbar = tqdm(total = 10, desc = 'Analyzing', colour = 'green')
 
 # Read the image
 raw_image = convert_to_8bit_grayscale(filename)
 
-pbar.update(1)
-
 # Filter the image
-filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
+filtered_image = make_filtered_image(raw_image, FilterKey)
 
 pbar.update(1)
 
@@ -79,8 +67,8 @@ pbar.update(1)
 
 ###########################
 
-# Calculate the percentage area of the non-zero pixels
-percentage = percentage_area(binarized_image)
+# Calculate the fibrotic_percentage area of the non-zero pixels compared to the image size
+fibrotic_percentage = percentage_area(binarized_image)
 
 pbar.update(1)
 
@@ -135,22 +123,9 @@ pbar.update(1)
 
 # Plot the results
 
-fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'binary')
+fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
 
-plt.title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
-plt.xticks([])
-plt.yticks([])
-
-ax = plt.gca()
-divider = make_axes_locatable(ax)
-width = axes_size.AxesY(ax, aspect=1./aspect)
-pad = axes_size.Fraction(pad_fraction, width)
-cax = divider.append_axes("right", size=width, pad=pad)
-cbar = plt.colorbar(im, cax=cax)
-cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-
-saving_name = 'Uploaded_Image' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
+saving_name = 'Results' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
 plt.savefig(saving_name)
 plt.close()
 
@@ -158,143 +133,13 @@ pbar.update(1)
 
 ###########################
 
-fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-# 			im = plt.imshow(binarized_image, vmin = 0, vmax = 1, cmap = 'binary')
-im = plt.imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'binary')
-plt.title('Filtered Image', pad = PAD, fontsize = FONTSIZE_TITLE)
-plt.xticks([])
-plt.yticks([])
-
-ax = plt.gca()
-divider = make_axes_locatable(ax)
-width = axes_size.AxesY(ax, aspect=1./aspect)
-pad = axes_size.Fraction(pad_fraction, width)
-cax = divider.append_axes("right", size=width, pad=pad)
-cbar = plt.colorbar(im, cax=cax)
-cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-
-saving_name = 'Filtered_Image' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
-plt.savefig(saving_name)
-plt.close()
-
-pbar.update(1)
-
-###########################
-
-fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-im = plt.imshow(Local_Density, vmin = 0, vmax = 1, cmap = 'Spectral_r')
-
-plt.title('Local Density, ' + str(percentage) + '% fibrotic', pad = PAD, fontsize = FONTSIZE_TITLE)
-plt.xticks([])
-plt.yticks([])
-
-ax = plt.gca()
-divider = make_axes_locatable(ax)
-width = axes_size.AxesY(ax, aspect=1./aspect)
-pad = axes_size.Fraction(pad_fraction, width)
-cax = divider.append_axes("right", size=width, pad=pad)
-cbar = plt.colorbar(im, cax=cax)
-cbar.formatter.set_powerlimits((0, 0))
-# cbar.formatter.set_useMathText(True)
-cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-
-saving_name = 'Local_Density' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
-plt.savefig(saving_name)
-plt.close()
-
-pbar.update(1)
-
-###########################
-
-fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-
-im = plt.imshow(Image_Coherance, vmin = 0, vmax = 1, cmap = 'Spectral_r')
-# im = plt.imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.Spectral_r(Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
-# im = plt.imshow((raw_image/raw_image.max()) * (Image_Coherance), vmin = 0, vmax = 1, cmap = 'Spectral_r')
-
-plt.title('Coherence', pad = PAD, fontsize = FONTSIZE_TITLE)
-plt.xticks([])
-plt.yticks([])
-
-ax = plt.gca()
-divider = make_axes_locatable(ax)
-width = axes_size.AxesY(ax, aspect=1./aspect)
-pad = axes_size.Fraction(pad_fraction, width)
-cax = divider.append_axes("right", size=width, pad=pad)
-cbar = plt.colorbar(im, cax=cax)
-cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-
-saving_name = 'Coherence' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
-plt.savefig(saving_name)
-plt.close()
-
-pbar.update(1)
-
-###########################
-
-fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-
-im = plt.imshow(Image_Orientation/180, vmin = 0, vmax = 1, cmap = 'hsv')
-# im = plt.imshow(plt.cm.binary_r(binarized_image/binarized_image.max()) * plt.cm.hsv(Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
-# im = plt.imshow((raw_image/raw_image.max()) * (Image_Orientation/180), vmin = 0, vmax = 1, cmap = 'hsv')
-
-plt.title('Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
-plt.xticks([])
-plt.yticks([])
-
-ax = plt.gca()
-divider = make_axes_locatable(ax)
-width = axes_size.AxesY(ax, aspect=1./aspect)
-pad = axes_size.Fraction(pad_fraction, width)
-cax = divider.append_axes("right", size=width, pad=pad)
-cbar = fig.colorbar(im, cax = cax, ticks = np.linspace(0, 1, 5))
-cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$135^{\circ}$', r'$180^{\circ}$'])
-ticklabs = cbar.ax.get_yticklabels()
-cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
-
-saving_name = 'Orientation' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
-plt.savefig(saving_name)
-plt.close()
-
-pbar.update(1)
-
-###########################
-
-fig = plt.figure(figsize = FIGSIZE, constrained_layout = True, dpi = DPI)
-
-im = plt.imshow(raw_image, vmin = 0, vmax = 255, cmap = 'Oranges', alpha = 0.8)
-
-xmesh, ymesh = np.meshgrid(np.arange(raw_image.shape[0]), np.arange(raw_image.shape[1]), indexing = 'ij')
-
-plt.quiver(ymesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], xmesh[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vy[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey], vx[SpacingKey//2::SpacingKey, SpacingKey//2::SpacingKey],
-scale = ScaleKey, headlength = 0, headaxislength = 0, 
-pivot = 'middle', color = 'black', angles = 'xy')
-
-plt.title('Local Orientation', pad = PAD, fontsize = FONTSIZE_TITLE)
-plt.xticks([])
-plt.yticks([])
-
-ax = plt.gca()
-divider = make_axes_locatable(ax)
-width = axes_size.AxesY(ax, aspect=1./aspect)
-pad = axes_size.Fraction(pad_fraction, width)
-cax = divider.append_axes("right", size=width, pad=pad)
-cbar = plt.colorbar(im, cax=cax)
-cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
-
-saving_name = 'Local_Orientation' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
-plt.savefig(saving_name)
-plt.close()
-
-pbar.update(1)
-
-###########################
+# Perform statistical analysis
 
 perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance)
 
-###########################
-
 pbar.update(1)
+
+###########################
 
 pbar.close()
 
