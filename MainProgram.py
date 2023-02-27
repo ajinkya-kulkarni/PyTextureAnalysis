@@ -35,6 +35,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 import os
 import time
+from tqdm import tqdm
 
 import sys
 
@@ -51,11 +52,19 @@ from parameters import *
 
 ########################################################################################
 
+print()
+
+pbar = tqdm(total=16, desc = 'Analyzing', colour="#2ca02c")
+
 # Read the image
 raw_image = convert_to_8bit_grayscale(filename)
 
+pbar.update(1)
+
 # Filter the image
 filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)
+
+pbar.update(1)
 
 ###########################
 
@@ -66,10 +75,14 @@ filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = '
 # Binarize the image
 binarized_image = binarize_image(filtered_image, radius = BinarizationKey)
 
+pbar.update(1)
+
 ###########################
 
 # Calculate the percentage area of the non-zero pixels
 percentage = percentage_area(binarized_image)
+
+pbar.update(1)
 
 ###########################
 
@@ -86,15 +99,21 @@ Local_Density = convolve(raw_image, local_kernel)
 
 Local_Density = np.divide(Local_Density, Local_Density.max(), out=np.full(Local_Density.shape, np.nan), where=Local_Density.max() != 0)
 
+pbar.update(1)
+
 ###########################
 
 # Calculate image gradients in X and Y directions
 image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
 
+pbar.update(1)
+
 ###########################
 
 # Calculate the structure tensor and solve for EigenValues, EigenVectors
 Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
+
+pbar.update(1)
 
 ###########################
 
@@ -102,11 +121,15 @@ Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tens
 
 Image_Coherance = make_coherence(filtered_image, EigenValues, Structure_Tensor, ThresholdValueKey)
 
+pbar.update(1)
+
 ###########################
 
 # Calculate Orientation
 Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
 vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
+
+pbar.update(1)
 
 ###########################
 
@@ -127,8 +150,11 @@ cax = divider.append_axes("right", size=width, pad=pad)
 cbar = plt.colorbar(im, cax=cax)
 cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
-plt.savefig('Uploaded_Image.png')
+saving_name = 'Uploaded_Image' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
+plt.savefig(saving_name)
 plt.close()
+
+pbar.update(1)
 
 ###########################
 
@@ -147,8 +173,11 @@ cax = divider.append_axes("right", size=width, pad=pad)
 cbar = plt.colorbar(im, cax=cax)
 cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
-plt.savefig('Filtered_Image.png')
+saving_name = 'Filtered_Image' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
+plt.savefig(saving_name)
 plt.close()
+
+pbar.update(1)
 
 ###########################
 
@@ -169,8 +198,11 @@ cbar.formatter.set_powerlimits((0, 0))
 # cbar.formatter.set_useMathText(True)
 cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
-plt.savefig('Local_Density.png')
+saving_name = 'Local_Density' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
+plt.savefig(saving_name)
 plt.close()
+
+pbar.update(1)
 
 ###########################
 
@@ -192,8 +224,11 @@ cax = divider.append_axes("right", size=width, pad=pad)
 cbar = plt.colorbar(im, cax=cax)
 cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
-plt.savefig('Coherence.png')
+saving_name = 'Coherence' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
+plt.savefig(saving_name)
 plt.close()
+
+pbar.update(1)
 
 ###########################
 
@@ -217,8 +252,11 @@ cbar.ax.set_yticklabels([r'$0^{\circ}$', r'$45^{\circ}$', r'$90^{\circ}$', r'$13
 ticklabs = cbar.ax.get_yticklabels()
 cbar.ax.set_yticklabels(ticklabs, fontsize = FONTSIZE_TITLE)
 
-plt.savefig('Orientation.png')
+saving_name = 'Orientation' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
+plt.savefig(saving_name)
 plt.close()
+
+pbar.update(1)
 
 ###########################
 
@@ -244,7 +282,22 @@ cax = divider.append_axes("right", size=width, pad=pad)
 cbar = plt.colorbar(im, cax=cax)
 cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 
-plt.savefig('Local_Orientation.png')
+saving_name = 'Local_Orientation' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
+plt.savefig(saving_name)
 plt.close()
+
+pbar.update(1)
+
+###########################
+
+perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance)
+
+###########################
+
+pbar.update(1)
+
+pbar.close()
+
+print()
 
 ###########################

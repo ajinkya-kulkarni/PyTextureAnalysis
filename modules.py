@@ -33,6 +33,7 @@ import cv2
 
 import scipy.ndimage
 from scipy import ndimage
+from scipy.stats import circmean, circstd
 
 from skimage.filters import threshold_mean
 from skimage.morphology import disk
@@ -142,9 +143,6 @@ def circular_variance(angles):
 	Returns:
 	float: circular variance value
 	"""
-	# check if angles is a 1D array
-	if len(angles.shape) != 1:
-		raise ValueError("Input must be a 1D array of angles in radians")
 	#remove NaN values
 	angles = angles[~np.isnan(angles)]
 	length = angles.size
@@ -514,10 +512,13 @@ def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Ima
 
 	############################################################
 
-	results_array = np.asarray((folder_list[i][:-1], round(NormalMean, 2), round(CircMean, 2), round(NormalStdDev, 2), round(CircStdDev, 2), round(CircVar, 2), round(np.nanmean(Image_Coherance_temp), 2), round(np.nanmedian(Image_Coherance_temp), 2), round(np.nanstd(Image_Coherance_temp), 2), low_coherance, high_coherance))
+	results_array = np.asarray((filename, np.round(NormalMean, 2), np.round(CircMean, 2), np.round(NormalStdDev, 2), np.round(CircStdDev, 2), np.round(CircVar, 2), np.round(np.nanmean(Image_Coherance_temp), 2), np.round(np.nanmedian(Image_Coherance_temp), 2), np.round(np.nanstd(Image_Coherance_temp), 2), low_coherance, high_coherance))
 
-	np.savetxt('Results_' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.csv', array, fmt = "%s", delimiter = ',', header = "Specimen, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
+	results_array = np.atleast_2d(results_array)
 
-	############################################################
+	with open(f"Results_{filename}_LocalSigma_{LocalSigmaKey}.csv", "w") as f:
+		np.savetxt(f, results_array, fmt="%s", delimiter=",", header="Filename, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
+
+########################################################################################
 
 	
