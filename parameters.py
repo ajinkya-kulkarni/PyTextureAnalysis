@@ -55,7 +55,7 @@ FIGSIZE = (25, 12)
 PAD = 10
 FONTSIZE_TITLE = 20
 
-DPI_streamlit = 500
+DPI_streamlit = 600
 DPI_regular = 200
 
 aspect = 20
