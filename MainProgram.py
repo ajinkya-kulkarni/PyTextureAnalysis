@@ -123,7 +123,7 @@ pbar.update(1)
 
 # Plot the results
 
-fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
+fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI_regular, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
 
 saving_name = 'Results' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
 plt.savefig(saving_name)
@@ -135,7 +135,11 @@ pbar.update(1)
 
 # Perform statistical analysis
 
-perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance)
+results_array = perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance)
+
+# Save the results in a CSV file
+with open(f"Results_{filename}_LocalSigma_{LocalSigmaKey}.csv", "w") as f:
+	np.savetxt(f, results_array, fmt="%s", delimiter=",", header="Filename, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
 
 pbar.update(1)
 

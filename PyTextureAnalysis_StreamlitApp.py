@@ -105,7 +105,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 	submitted = st.form_submit_button('Analyze')
 
-	st.markdown("")
+	st.markdown("""---""")
 
 	####################################################################################
 
@@ -214,7 +214,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		####################################################################################
 
-			fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
+			fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI_streamlit, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
 
 			st.pyplot(fig)
 
@@ -223,14 +223,23 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			# Perform statistical analysis
 
-			perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance)
+			results_array = perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance)
+
+			dataframe = load_pandas_dataframe(results_array)
+
+			st.markdown("")
+
+			st.markdown("Detailed Report")
+
+			st.dataframe(dataframe, use_container_width=True)
+
+			####################################################################################
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(11/11))
 
 			ProgressBarText.empty()
 			ProgressBar.empty()
-
 		except:
 
 			raise Exception('Analysis unsuccessful')

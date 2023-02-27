@@ -29,6 +29,7 @@ from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 
 import numpy as np
+import pandas as pd
 
 from scipy import ndimage
 from scipy.stats import circmean, circstd
@@ -538,9 +539,7 @@ def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Ima
 	
 	results_array = np.atleast_2d(results_array)
 
-	# Save the results in a CSV file
-	with open(f"Results_{filename}_LocalSigma_{LocalSigmaKey}.csv", "w") as f:
-		np.savetxt(f, results_array, fmt="%s", delimiter=",", header="Filename, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
+	return results_array
 
 ########################################################################################
 
@@ -590,6 +589,7 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 	cax = divider.append_axes("right", size=width, pad=pad)
 	cbar = plt.colorbar(im, cax=cax)
 	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+	cbar.remove()
 
 	###########################
 
@@ -604,6 +604,7 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 	cax = divider.append_axes("right", size=width, pad=pad)
 	cbar = plt.colorbar(im, cax=cax)
 	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+	cbar.remove()
 
 	###########################
 
@@ -678,9 +679,52 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 	cax = divider.append_axes("right", size=width, pad=pad)
 	cbar = plt.colorbar(im, cax=cax)
 	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
+	cbar.remove()
 
 	###########################
 
 	return fig
+
+########################################################################################
+
+def load_pandas_dataframe(results_array):
+	"""
+	Creates a Pandas DataFrame from a 2D NumPy array.
+
+	Parameters
+	----------
+	results_array : numpy.ndarray
+		A 2D array of shape (n, 10) containing the results of a computation.
+
+	Returns
+	-------
+	pandas.DataFrame
+		A DataFrame with 11 columns, containing the following data from results_array:
+			- Name of the uploaded image
+			- Mean Orientation
+			- Circular Mean Orientation
+			- StdDev Orientation
+			- Circular StdDev Orientation
+			- Circular Variance
+			- Mean Coherance
+			- Median Coherance
+			- StdDev Coherance
+			- % Low Coherance
+			- % High Coherance
+	"""
+	dataframe =  pd.DataFrame({
+		"Uploaded Image": results_array[:, 0],
+		"Mean Orientation": results_array[:, 1],
+		"Circular Mean Orientation": results_array[:, 2],
+		"StdDev Orientation": results_array[:, 3],
+		"Circular StdDev Orientation": results_array[:, 4],
+		"Circular Variance": results_array[:, 5],
+		"Mean Coherance": results_array[:, 6],
+		"Median Coherance": results_array[:, 7],
+		"StdDev Coherance": results_array[:, 8],
+		"% Low Coherance": results_array[:, 9],
+		"% High Coherance": results_array[:, 10]})
+
+	return dataframe
 
 ########################################################################################
