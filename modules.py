@@ -479,46 +479,46 @@ def stitch_back_chunks(analyzed_chunk_list, padded_img, img, chunk_size):
 ########################################################################################
 
 def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance):
+	"""
+	Calculate various statistical parameters of the given image data and save the results in a CSV file.
 
+	Parameters:
+	filename (str): The name of the file being processed.
+	LocalSigmaKey (int): The value of LocalSigmaKey used in the image processing.
+	Image_Orientation (numpy array): An array of orientation data for the image.
+	Image_Coherance (numpy array): An array of coherence data for the image.
+
+	Returns:
+	None.
+	"""
+	
+	# Convert Image_Orientation to radians
 	Image_Orientation_rad = np.deg2rad(Image_Orientation)
 
-	############################################################
-
-	CircMean = circmean(Image_Orientation_rad[~np.isnan(Image_Orientation_rad)], low = 0, high = np.pi)
-
+	# Calculate circular and normal means of Image_Orientation
+	CircMean = circmean(Image_Orientation_rad[~np.isnan(Image_Orientation_rad)], low=0, high=np.pi)
 	NormalMean = np.nanmean(Image_Orientation_rad)
 
-	############################################################
-
-	CircStdDev = circstd(Image_Orientation_rad[~np.isnan(Image_Orientation_rad)], low = 0, high = np.pi)
-
+	# Calculate circular and normal standard deviations of Image_Orientation
+	CircStdDev = circstd(Image_Orientation_rad[~np.isnan(Image_Orientation_rad)], low=0, high=np.pi)
 	NormalStdDev = np.nanstd(Image_Orientation_rad)
 
-	############################################################
-
+	# Calculate circular variance of Image_Orientation
 	CircVar = circular_variance(Image_Orientation_rad)
 
-	# Refer to https://stackoverflow.com/questions/52856232/scipy-circular-variance
-
-	############################################################
-
+	# Calculate low and high coherance values
 	Image_Coherance_temp = Image_Coherance[~np.isnan(Image_Coherance)].copy()
-
-	histogram_coherance = plt.hist(Image_Coherance_temp, bins = 2, weights = np.ones(len(Image_Coherance_temp)) / len(Image_Coherance_temp));
-
+	histogram_coherance = plt.hist(Image_Coherance_temp, bins=2, weights=np.ones(len(Image_Coherance_temp))/len(Image_Coherance_temp))
 	plt.close()
-
 	low_coherance, high_coherance = np.round(100 * histogram_coherance[0], 2)
 
-	############################################################
-
+	# Combine the results into a single numpy array
 	results_array = np.asarray((filename, np.round(NormalMean, 2), np.round(CircMean, 2), np.round(NormalStdDev, 2), np.round(CircStdDev, 2), np.round(CircVar, 2), np.round(np.nanmean(Image_Coherance_temp), 2), np.round(np.nanmedian(Image_Coherance_temp), 2), np.round(np.nanstd(Image_Coherance_temp), 2), low_coherance, high_coherance))
-
+	
 	results_array = np.atleast_2d(results_array)
 
+	# Save the results in a CSV file
 	with open(f"Results_{filename}_LocalSigma_{LocalSigmaKey}.csv", "w") as f:
 		np.savetxt(f, results_array, fmt="%s", delimiter=",", header="Filename, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
 
 ########################################################################################
-
-	
