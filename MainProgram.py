@@ -52,7 +52,7 @@ from parameters import *
 ########################################################################################
 
 # Read the image
-raw_image = convert_to_8bit_grayscale(uploaded_file)
+raw_image = convert_to_8bit_grayscale(filename)
 
 # Filter the image
 filtered_image = skimage.filters.gaussian(raw_image, sigma = FilterKey, mode = 'nearest', preserve_range = True)

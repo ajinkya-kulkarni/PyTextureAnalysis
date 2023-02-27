@@ -25,6 +25,12 @@
 
 ########################################################################################
 
+# Define filename to be analyzed:
+
+filename = 'TestImage1.tif'
+
+########################################################################################
+
 # Analysis parameters
 
 FilterKey = 1
@@ -45,7 +51,7 @@ ScaleKey = 40
 
 # Plotting parameters
 
-FIGSIZE = (5, 5)
+FIGSIZE = (10, 10)
 PAD = 10
 FONTSIZE_TITLE = 15
 DPI = 300
