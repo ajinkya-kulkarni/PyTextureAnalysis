@@ -585,7 +585,7 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 	fig, axes = plt.subplot_mosaic("ABC;DEF", figsize=FIGSIZE, constrained_layout=False, dpi=DPI)
 
 	# adjust vertical spacing between subplots
-	fig.subplots_adjust(hspace = 0.1, wspace = 0.3)
+	fig.subplots_adjust(hspace = 0.01, wspace = 0.3)
 
 	###########################
 
