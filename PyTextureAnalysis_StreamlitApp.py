@@ -231,7 +231,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			st.markdown("Detailed Report")
 
-			st.dataframe(dataframe, use_container_width=True)
+			st.dataframe(dataframe, use_container_width = True)
 
 			####################################################################################
 
@@ -240,6 +240,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			ProgressBarText.empty()
 			ProgressBar.empty()
+			
 		except:
 
 			raise Exception('Analysis unsuccessful')

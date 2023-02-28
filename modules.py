@@ -65,10 +65,18 @@ def binarize_image(image, radius = 15):
 
 	image = image.astype('uint8')
 
-	selem = disk(radius)
-	threshold_value = rank.otsu(image, selem)
+	############
 
-	# threshold_value = threshold_mean(image)
+	# Local OTSU thresholding
+
+	# selem = disk(radius)
+	# threshold_value = rank.otsu(image, selem)
+
+	# global thresholding
+
+	threshold_value = threshold_mean(image)
+
+	############
 
 	binary_image = image > threshold_value
 
@@ -574,7 +582,10 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 	Returns a figure with six subplots arranged in a 2x3 grid that represent different aspects of an image analysis. Each subplot has a colorbar that shows the color scale for that particular subplot.
 	"""
 
-	fig, axes = plt.subplot_mosaic("ABC;DEF", figsize=FIGSIZE, constrained_layout=True, dpi=DPI)
+	fig, axes = plt.subplot_mosaic("ABC;DEF", figsize=FIGSIZE, constrained_layout=False, dpi=DPI)
+
+	# adjust vertical spacing between subplots
+	fig.subplots_adjust(hspace = 0.1, wspace = 0.3)
 
 	###########################
 
@@ -713,7 +724,6 @@ def load_pandas_dataframe(results_array):
 			- % High Coherance
 	"""
 	dataframe =  pd.DataFrame({
-		"Uploaded Image": results_array[:, 0],
 		"Mean Orientation [degrees]": results_array[:, 1],
 		"Circular Mean Orientation [degrees]": results_array[:, 2],
 		"Standard Deviation Orientation [degrees]": results_array[:, 3],
@@ -724,6 +734,10 @@ def load_pandas_dataframe(results_array):
 		"Standard Deviation Coherance": results_array[:, 8],
 		"% Low Coherance regions": results_array[:, 9],
 		"% High Coherance regions": results_array[:, 10]})
+
+	BlankIndex = [''] * len(dataframe)
+
+	dataframe.index = BlankIndex
 
 	return dataframe
 

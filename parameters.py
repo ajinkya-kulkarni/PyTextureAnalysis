@@ -51,9 +51,9 @@ ScaleKey = 40
 
 # Plotting parameters
 
-FIGSIZE = (25, 12)
+FIGSIZE = (20, 15)
 PAD = 10
-FONTSIZE_TITLE = 20
+FONTSIZE_TITLE = 15
 
 DPI = 300
 
