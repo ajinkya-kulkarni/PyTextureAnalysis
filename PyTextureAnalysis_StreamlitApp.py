@@ -214,7 +214,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		####################################################################################
 
-			fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI_streamlit, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
+			fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, 3*DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
 
 			st.pyplot(fig)
 
