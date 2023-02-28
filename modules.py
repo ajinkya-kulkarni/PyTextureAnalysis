@@ -105,7 +105,7 @@ def make_filtered_image(input_image, filter_sigma):
 
 def percentage_area(image):
 	"""
-	Calculate the percentage of nonzero pixels in a 2D binary image.
+	Calculate the percentage of nonzero pixels in a 2D image.
 
 	Parameters:
 		image (np.array): Input image to be quantified.
@@ -114,21 +114,17 @@ def percentage_area(image):
 		np.array: Returns a value corresponding to the percentage of nonzero pixels
 
 	Raises:
-		ValueError: If the input image is not 2D or not binary.
+		ValueError: If the input image is not 2D.
 	"""
 	# Check if the input image is 2D
 	if len(image.shape) != 2:
 		raise ValueError("Input should be a 2D image.")
 
-	# Check if the input image is binary
-	if len(np.unique(image)) != 2:
-		raise ValueError("Input should be a 2D binarized image.")
-
-	non_zero_pixels = np.count_nonzero(image)
+	non_nan_image = image[~np.isnan(image)]
+	non_zero_pixels = np.count_nonzero(non_nan_image)
 
 	image_size = image.shape[0] * image.shape[1]
-
-	percentage_area = np.round(100 * non_zero_pixels / image_size, 1)
+	percentage_area = np.round(100 * non_zero_pixels / image_size, 2)
 
 	return percentage_area
 
@@ -508,7 +504,7 @@ def stitch_back_chunks(analyzed_chunk_list, padded_img, img, chunk_size):
 
 ########################################################################################
 
-def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance):
+def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance, percentage_area):
 	"""
 	Calculate various statistical parameters of the given image data and save the results in a CSV file.
 
@@ -517,6 +513,7 @@ def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Ima
 	LocalSigmaKey (int): The value of LocalSigmaKey used in the image processing.
 	Image_Orientation (numpy array): An array of orientation data for the image.
 	Image_Coherance (numpy array): An array of coherence data for the image.
+	percentage_area (float): Percentage of fibrotic area in the image
 
 	Returns:
 	None.
@@ -543,7 +540,7 @@ def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Ima
 	low_coherance, high_coherance = np.round(100 * histogram_coherance[0], 2)
 
 	# Combine the results into a single numpy array
-	results_array = np.asarray((filename, np.round(NormalMean, 2), np.round(CircMean, 2), np.round(NormalStdDev, 2), np.round(CircStdDev, 2), np.round(CircVar, 2), np.round(np.nanmean(Image_Coherance_temp), 2), np.round(np.nanmedian(Image_Coherance_temp), 2), np.round(np.nanstd(Image_Coherance_temp), 2), low_coherance, high_coherance))
+	results_array = np.asarray((filename, percentage_area, np.round(NormalMean, 2), np.round(CircMean, 2), np.round(NormalStdDev, 2), np.round(CircStdDev, 2), np.round(CircVar, 2), np.round(np.nanmean(Image_Coherance_temp), 2), np.round(np.nanmedian(Image_Coherance_temp), 2), np.round(np.nanstd(Image_Coherance_temp), 2), low_coherance, high_coherance))
 	
 	results_array = np.atleast_2d(results_array)
 
@@ -724,16 +721,17 @@ def load_pandas_dataframe(results_array):
 			- % High Coherance
 	"""
 	dataframe =  pd.DataFrame({
-		"Mean Orientation [degrees]": results_array[:, 1],
-		"Circular Mean Orientation [degrees]": results_array[:, 2],
-		"Standard Deviation Orientation [degrees]": results_array[:, 3],
-		"Circular Standard Deviation Orientation [degrees]": results_array[:, 4],
-		"Circular Variance Orientation [degrees]": results_array[:, 5],
-		"Mean Coherance": results_array[:, 6],
-		"Median Coherance": results_array[:, 7],
-		"Standard Deviation Coherance": results_array[:, 8],
-		"% Low Coherance regions": results_array[:, 9],
-		"% High Coherance regions": results_array[:, 10]})
+		"Fibrotic percentage [%]": results_array[:, 1],
+		"Mean Orientation [degrees]": results_array[:, 2],
+		"Circular Mean Orientation [degrees]": results_array[:, 3],
+		"Standard Deviation Orientation [degrees]": results_array[:, 4],
+		"Circular Standard Deviation Orientation [degrees]": results_array[:, 5],
+		"Circular Variance Orientation [degrees]": results_array[:, 6],
+		"Mean Coherance": results_array[:, 7],
+		"Median Coherance": results_array[:, 8],
+		"Standard Deviation Coherance": results_array[:, 9],
+		"% Low Coherance regions": results_array[:, 10],
+		"% High Coherance regions": results_array[:, 11]})
 
 	BlankIndex = [''] * len(dataframe)
 

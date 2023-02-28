@@ -39,6 +39,8 @@ LocalSigmaKey = 10
 
 BinarizationKey = 20
 
+DensityThresholdValueKey = 0.5
+
 LocalDensityKey = 10
 
 ThresholdValueKey = 20

@@ -154,14 +154,6 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			###########################
 
-			# Calculate the fibrotic_percentage area of the non-zero pixels compared to the image size
-			fibrotic_percentage = percentage_area(binarized_image)
-
-			time.sleep(ProgressBarTime)
-			ProgressBar.progress(float(4/11))
-
-			###########################
-
 			# Define the kernel and it's size
 			local_kernel_size = LocalDensityKey
 			if (local_kernel_size % 2 == 0):
@@ -174,6 +166,18 @@ with st.form(key = 'form1', clear_on_submit = False):
 			Local_Density = convolve(raw_image, local_kernel)
 
 			Local_Density = np.divide(Local_Density, Local_Density.max(), out=np.full(Local_Density.shape, np.nan), where=Local_Density.max() != 0)
+
+			time.sleep(ProgressBarTime)
+			ProgressBar.progress(float(4/11))
+
+			###########################
+
+			# Calculate the fibrotic_percentage area of the non-zero pixels compared to the image size
+			Local_Density_considered = Local_Density.copy()
+
+			Local_Density_considered[Local_Density_considered < DensityThresholdValueKey] = np.nan
+
+			fibrotic_percentage = percentage_area(Local_Density_considered)
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(5/11))
@@ -223,7 +227,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			# Perform statistical analysis
 
-			results_array = perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance)
+			results_array = perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance, fibrotic_percentage)
 
 			dataframe = load_pandas_dataframe(results_array)
 

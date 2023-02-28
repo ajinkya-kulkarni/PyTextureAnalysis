@@ -67,13 +67,6 @@ pbar.update(1)
 
 ###########################
 
-# Calculate the fibrotic_percentage area of the non-zero pixels compared to the image size
-fibrotic_percentage = percentage_area(binarized_image)
-
-pbar.update(1)
-
-###########################
-
 # Define the kernel and it's size
 local_kernel_size = LocalDensityKey
 if (local_kernel_size % 2 == 0):
@@ -86,6 +79,17 @@ local_kernel = np.ones((local_kernel_size, local_kernel_size), dtype = np.float3
 Local_Density = convolve(raw_image, local_kernel)
 
 Local_Density = np.divide(Local_Density, Local_Density.max(), out=np.full(Local_Density.shape, np.nan), where=Local_Density.max() != 0)
+
+pbar.update(1)
+
+###########################
+
+# Calculate the fibrotic_percentage area of the non-zero pixels compared to the image size
+Local_Density_considered = Local_Density.copy()
+
+Local_Density_considered[Local_Density_considered < DensityThresholdValueKey] = np.nan
+
+fibrotic_percentage = percentage_area(Local_Density_considered)
 
 pbar.update(1)
 
