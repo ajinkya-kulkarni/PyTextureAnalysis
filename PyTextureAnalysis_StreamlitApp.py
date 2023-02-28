@@ -175,6 +175,8 @@ with st.form(key = 'form1', clear_on_submit = False):
 			# Calculate the fibrotic_percentage area of the non-zero pixels compared to the image size
 			Local_Density_considered = Local_Density.copy()
 
+			DensityThresholdValueKey = 0.5
+
 			Local_Density_considered[Local_Density_considered < DensityThresholdValueKey] = np.nan
 
 			fibrotic_percentage = percentage_area(Local_Density_considered)
