@@ -123,7 +123,7 @@ pbar.update(1)
 
 # Plot the results
 
-fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI_regular, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
+fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
 
 saving_name = 'Results' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
 plt.savefig(saving_name)
