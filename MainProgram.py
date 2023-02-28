@@ -139,11 +139,18 @@ pbar.update(1)
 
 # Perform statistical analysis
 
-results_array = perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance)
+results_array = perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance, fibrotic_percentage)
 
-# Save the results in a CSV file
-with open(f"Results_{filename}_LocalSigma_{LocalSigmaKey}.csv", "w") as f:
-	np.savetxt(f, results_array, fmt="%s", delimiter=",", header="Filename, Mean Orientation, Circular Mean Orientation, StdDev Orientation, Circular StdDev Orientation, Circular Variance, Mean Coherance, Median Coherance, StdDev Coherance, % Low Coherance, % High Coherance")
+dataframe = load_pandas_dataframe(results_array)
+
+# add a new column "Filename" to the DataFrame
+dataframe.insert(0, "Filename", results_array[:, 0])
+
+# Save the dataframe in a CSV file
+
+saving_name = 'Results' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.csv'
+
+dataframe.to_csv(saving_name, index=False)
 
 pbar.update(1)
 

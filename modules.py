@@ -733,10 +733,6 @@ def load_pandas_dataframe(results_array):
 		"% Low Coherance regions": results_array[:, 10],
 		"% High Coherance regions": results_array[:, 11]})
 
-	BlankIndex = [''] * len(dataframe)
-
-	dataframe.index = BlankIndex
-
 	return dataframe
 
 ########################################################################################

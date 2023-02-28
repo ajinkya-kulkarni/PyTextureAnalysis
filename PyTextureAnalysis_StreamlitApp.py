@@ -241,11 +241,16 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			dataframe = load_pandas_dataframe(results_array)
 
+			# Remove the row number 
+
+			BlankIndex = [''] * len(dataframe)
+			dataframe.index = BlankIndex
+
 			st.markdown("")
 
 			st.markdown("Detailed Report")
 
-			st.dataframe(dataframe, use_container_width = True)
+			st.dataframe(dataframe.style.format("{:.2f}"), use_container_width = True)
 
 			####################################################################################
 
