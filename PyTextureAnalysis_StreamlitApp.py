@@ -39,7 +39,15 @@ sys.tracebacklimit = 0
 ########################################################################################
 
 from modules import *
-from parameters import *
+
+FIGSIZE = (20, 15)
+PAD = 10
+FONTSIZE_TITLE = 15
+
+DPI = 300
+
+aspect = 20
+pad_fraction = 0.6
 
 ########################################################################################
 
@@ -220,7 +228,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 		####################################################################################
 
-			fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, 2*DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
+			fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, uploaded_file, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, 2*DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
 
 			st.pyplot(fig)
 
@@ -229,7 +237,7 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			# Perform statistical analysis
 
-			results_array = perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Image_Coherance, fibrotic_percentage)
+			results_array = perform_statistical_analysis(uploaded_file, LocalSigmaKey, Image_Orientation, Image_Coherance, fibrotic_percentage)
 
 			dataframe = load_pandas_dataframe(results_array)
 
