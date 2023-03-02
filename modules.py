@@ -579,10 +579,10 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 	Returns a figure with six subplots arranged in a 2x3 grid that represent different aspects of an image analysis. Each subplot has a colorbar that shows the color scale for that particular subplot.
 	"""
 
-	fig, axes = plt.subplot_mosaic("ABC;DEF", figsize=FIGSIZE, constrained_layout=False, dpi=DPI)
+	fig, axes = plt.subplot_mosaic("ABC;DEF", figsize=FIGSIZE, dpi=DPI)
 
 	# adjust vertical spacing between subplots
-	fig.subplots_adjust(hspace = 0.01, wspace = 0.3)
+	fig.subplots_adjust(hspace = 0.01, wspace = 0.2)
 
 	###########################
 
@@ -688,6 +688,8 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 	cbar = plt.colorbar(im, cax=cax)
 	cbar.ax.tick_params(labelsize = FONTSIZE_TITLE)
 	cbar.remove()
+
+	plt.tight_layout()
 
 	###########################
 
