@@ -30,7 +30,6 @@ Image.MAX_IMAGE_PIXELS = None
 
 import numpy as np
 import pandas as pd
-from tqdm.notebook import tqdm
 
 from scipy import ndimage
 from scipy.stats import circmean, circstd
@@ -740,21 +739,15 @@ def load_pandas_dataframe(results_array):
 
 ########################################################################################
 
-def independent_analysis_function(filename, FilterKey, BinarizationKey, LocalDensityKey, DensityThresholdValueKey, LocalSigmaKey, ThresholdValueKey, SpacingKey, ScaleKey, FIGSIZE, DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect):
+def independent_analysis_function(filename, FilterKey, LocalSigmaKey, ThresholdValueKey, SpacingKey, ScaleKey, FIGSIZE, DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect, mosiac_plot_filename, results_filename, BinarizationKey=20, LocalDensityKey=10, DensityThresholdValueKey=0.5):
 
 	########################################################################################
-
-	print()
-
-	pbar = tqdm(total = 10, desc = 'Analyzing', colour = 'green')
 
 	# Read the image
 	raw_image = convert_to_8bit_grayscale(filename)
 
 	# Filter the image
 	filtered_image = make_filtered_image(raw_image, FilterKey)
-
-	pbar.update(1)
 
 	###########################
 
@@ -764,8 +757,6 @@ def independent_analysis_function(filename, FilterKey, BinarizationKey, LocalDen
 
 	# Binarize the image
 	binarized_image = binarize_image(filtered_image, radius = BinarizationKey)
-
-	pbar.update(1)
 
 	###########################
 
@@ -782,8 +773,6 @@ def independent_analysis_function(filename, FilterKey, BinarizationKey, LocalDen
 
 	Local_Density = np.divide(Local_Density, Local_Density.max(), out=np.full(Local_Density.shape, np.nan), where=Local_Density.max() != 0)
 
-	pbar.update(1)
-
 	###########################
 
 	# Calculate the fibrotic_percentage area of the non-zero pixels compared to the image size
@@ -793,21 +782,15 @@ def independent_analysis_function(filename, FilterKey, BinarizationKey, LocalDen
 
 	fibrotic_percentage = percentage_area(Local_Density_considered)
 
-	pbar.update(1)
-
 	###########################
 
 	# Calculate image gradients in X and Y directions
 	image_gradient_x, image_gradient_y = make_image_gradients(filtered_image)
 
-	pbar.update(1)
-
 	###########################
 
 	# Calculate the structure tensor and solve for EigenValues, EigenVectors
 	Structure_Tensor, EigenValues, EigenVectors, Jxx, Jxy, Jyy = make_structure_tensor_2d(image_gradient_x, image_gradient_y, LocalSigmaKey)
-
-	pbar.update(1)
 
 	###########################
 
@@ -815,15 +798,11 @@ def independent_analysis_function(filename, FilterKey, BinarizationKey, LocalDen
 
 	Image_Coherance = make_coherence(filtered_image, EigenValues, Structure_Tensor, ThresholdValueKey)
 
-	pbar.update(1)
-
 	###########################
 
 	# Calculate Orientation
 	Image_Orientation = make_orientation(filtered_image, Jxx, Jxy, Jyy, ThresholdValueKey)
 	vx, vy = make_vxvy(filtered_image, EigenVectors, ThresholdValueKey)
-
-	pbar.update(1)
 
 	###########################
 
@@ -831,11 +810,8 @@ def independent_analysis_function(filename, FilterKey, BinarizationKey, LocalDen
 
 	fig = make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, Image_Coherance, Image_Orientation, vx, vy, filename, LocalSigmaKey, fibrotic_percentage, SpacingKey, ScaleKey, FIGSIZE, DPI, PAD, FONTSIZE_TITLE, pad_fraction, aspect)
 
-	saving_name = 'Results' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.png'
-	plt.savefig(saving_name)
+	plt.savefig(mosiac_plot_filename)
 	plt.close()
-
-	pbar.update(1)
 
 	###########################
 
@@ -850,17 +826,7 @@ def independent_analysis_function(filename, FilterKey, BinarizationKey, LocalDen
 
 	# Save the dataframe in a CSV file
 
-	saving_name = 'Results' + filename + '_LocalSigma_' + str(LocalSigmaKey) + '.csv'
-
-	dataframe.to_csv(saving_name, index=False)
-
-	pbar.update(1)
-
-	###########################
-
-	pbar.close()
-
-	print()
+	dataframe.to_csv(results_filename, index=False)
 
 ########################################################################################
 
