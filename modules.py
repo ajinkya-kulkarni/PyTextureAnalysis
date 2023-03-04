@@ -542,6 +542,7 @@ def perform_statistical_analysis(filename, LocalSigmaKey, Image_Orientation, Ima
 	# Combine the results into a single numpy array
 	results_array = np.asarray((filename, percentage_area, np.round(NormalMean, 2), np.round(CircMean, 2), np.round(NormalStdDev, 2), np.round(CircStdDev, 2), np.round(CircVar, 2), np.round(np.nanmean(Image_Coherance_temp), 2), np.round(np.nanmedian(Image_Coherance_temp), 2), np.round(np.nanstd(Image_Coherance_temp), 2), low_coherance, high_coherance))
 	
+	# Modify the array shape so as to fit in with the dataframe later. Essentially make the shape (n, 1) from (n,)
 	results_array = np.atleast_2d(results_array)
 
 	return results_array
