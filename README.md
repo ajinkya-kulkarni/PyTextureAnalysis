@@ -23,7 +23,6 @@ A web application developed using `Streamlit` is available at https://textureinf
 ## Requirements
 - Python 3.8 or higher
 - Streamlit
-- OpenCV
 - NumPy
 - scikit-image
 - Matplotlib
