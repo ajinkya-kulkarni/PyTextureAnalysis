@@ -1,5 +1,6 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://textureinformation-package.streamlit.app/)
+[![DOI](https://zenodo.org/badge/518876048.svg)](https://zenodo.org/badge/latestdoi/518876048)
 
 # Texture Analysis using PyTextureAnalysis
 
