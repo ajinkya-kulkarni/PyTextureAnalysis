@@ -184,7 +184,7 @@ def circular_variance(angles):
 
 ########################################################################################
 
-def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
+def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value, epsilon = 1e-8):
 	"""
 	Calculate coherence values for a given input image, eigenvalues, structure tensor, and threshold value.
 
@@ -204,11 +204,12 @@ def make_coherence(input_image, eigenvalues, Structure_Tensor, threshold_value):
 	mask = (input_image >= threshold_value) & (eigenvalues.sum(axis=2) > 0)
 
 	trace = np.trace(Structure_Tensor, axis1=2, axis2=3)
-	Smallest_Normalized_Eigenvalues = eigenvalues[:, :, 0] / trace
-	Largest_Normalized_Eigenvalues = eigenvalues[:, :, 1] / trace
+
+	Smallest_Normalized_Eigenvalues = eigenvalues[:, :, 0] / (trace + epsilon)
+	Largest_Normalized_Eigenvalues = eigenvalues[:, :, 1] / (trace + epsilon)
 
 	# Compute the coherence values using np.where
-	Coherence_Array = np.where(mask, np.abs((Largest_Normalized_Eigenvalues - Smallest_Normalized_Eigenvalues) / (Smallest_Normalized_Eigenvalues + Largest_Normalized_Eigenvalues)), Coherence_Array)
+	Coherence_Array = np.where(mask, np.abs((Largest_Normalized_Eigenvalues - Smallest_Normalized_Eigenvalues) / (Smallest_Normalized_Eigenvalues + Largest_Normalized_Eigenvalues + epsilon)), Coherence_Array)
 
 	return Coherence_Array
 
