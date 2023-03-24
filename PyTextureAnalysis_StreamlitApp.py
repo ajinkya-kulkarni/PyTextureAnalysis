@@ -60,7 +60,7 @@ st.set_page_config(page_title = 'PyTextureAnalysis', page_icon = image_bytes, la
 
 # Title of the web app
 
-st.title(':blue[Texture analysis using PyTextureAnalysis]')
+st.title(':blue[Texture analysis of fibrotic structures]')
 
 st.caption('For more information, have a look at this [screenshot](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp.jpg). Sample image to test this application is available [here](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/TestImage1.tif). Source code available [here](https://github.com/ajinkya-kulkarni/PyTextureAnalysis).', unsafe_allow_html = False)
 
