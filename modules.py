@@ -436,7 +436,7 @@ def make_vxvy(input_image, eigenvectors, threshold_value):
 
 ########################################################################################
 
-def convert_to_8bit_grayscale(filename):
+def convert_to_8bit_grayscale(filename, epsilon = 1e-6):
 	"""
 	Read an image from a file using Pillow and return the 8-bit grayscale version of the image using NumPy.
 	If the image is already 8-bit grayscale, return the image without modification.
@@ -457,8 +457,9 @@ def convert_to_8bit_grayscale(filename):
 	if img.ndim != 2:
 		raise ValueError("Input image must be 2D grayscale.")
 
-	# Normalize the image
-	img = (img - np.min(img)) * (255 / (np.max(img) - np.min(img)))
+	# Normalize the image, where epsilon is a small constant to prevent division by zero
+	img = (img - np.min(img)) * (255.0 / (np.max(img) - np.min(img) + epsilon))
+	
 	img = img.astype(np.uint8)
 
 	return img
