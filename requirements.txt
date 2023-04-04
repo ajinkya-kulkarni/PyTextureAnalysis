@@ -1,3 +1,4 @@
+streamlit
 numpy==1.24.2
 scipy==1.10.1
 scikit-image==0.19.3
