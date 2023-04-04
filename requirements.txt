@@ -1,8 +1,7 @@
 streamlit
-numpy==1.24.2
-scipy==1.10.1
-scikit-image==0.19.3
-matplotlib==3.7.0
-Pillow==9.4.0
-tqdm==4.64.1
-pandas==1.5.3
+numpy
+scipy
+scikit-image
+matplotlib
+Pillow
+pandas
