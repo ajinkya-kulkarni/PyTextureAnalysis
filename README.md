@@ -19,8 +19,7 @@ A web application developed using `Streamlit` is available at https://textureinf
 
 ## App Overview
 
-![Streamlit App Screenshot](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp1.png)
-![Streamlit App Screenshot](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp2.png)
+![Streamlit App Screenshot](https://github.com/ajinkya-kulkarni/PyTextureAnalysis/blob/main/StreamlitApp.jpg)
 
 ## Requirements
 - Python 3.8 or higher
