@@ -12,7 +12,7 @@
 PyTextureAnalysis is a Python package that contains tools to analyze the texture of images. This code contains functions to calculate the local orientation of fibers in an image, as well as the degree of coherence. A web application is also available for demonstrating the PyTextureAnalysis package, which allows users to analyze 2D grayscale images for texture analysis.
 
 ## Features
-- Upload a 2D grayscale image for analysis
+- Upload a 2D grayscale image for texture analysis
 - Adjust image filter sigma, Gaussian local window, and window size for evaluating local density
 - Adjust threshold value for pixel evaluation, spacing between orientation vectors, and scaling for orientation vectors
 - Calculates local density, coherence, and orientation of the image
