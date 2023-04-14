@@ -1,11 +1,8 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://textureinformation-package.streamlit.app/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7810804.svg)](https://doi.org/10.5281/zenodo.7810804)
-
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/ajinkya-kulkarni/PyTextureAnalysis)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ajinkya-kulkarni/PyTextureAnalysis)
-![GitHub all releases](https://img.shields.io/github/downloads/ajinkya-kulkarni/PyTextureAnalysis/total)
-![GitHub language count](https://img.shields.io/github/languages/count/ajinkya-kulkarni/PyTextureAnalysis)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/ajinkya-kulkarni/PyTextureAnalysis)
 
 # Texture Analysis using PyTextureAnalysis
 
