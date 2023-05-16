@@ -153,9 +153,10 @@ with st.form(key = 'form1', clear_on_submit = False):
 
 			# Binarize the image
 
-			BinarizationKey = 20
+			# BinarizationKey = 20
+			# binarized_image = binarize_image(filtered_image, radius = BinarizationKey)
 
-			binarized_image = binarize_image(filtered_image, radius = BinarizationKey)
+			binarized_image = binarize_image(filtered_image)
 
 			time.sleep(ProgressBarTime)
 			ProgressBar.progress(float(3/11))

@@ -35,7 +35,7 @@ from scipy import ndimage
 from scipy.stats import circmean, circstd
 from scipy import signal
 
-from skimage.filters import threshold_mean, gaussian
+from skimage.filters import threshold_mean, gaussian, threshold_otsu
 from skimage.morphology import disk
 from skimage.filters import rank
 
@@ -45,7 +45,7 @@ from mpl_toolkits.axes_grid1 import axes_size
 
 ########################################################################################
 
-def binarize_image(image, radius = 15):
+def binarize_image(image):
 	"""
 	This function checks if the input image is 2D and returns a binary image based on a threshold value.
 
@@ -74,7 +74,7 @@ def binarize_image(image, radius = 15):
 
 	# global thresholding
 
-	threshold_value = threshold_mean(image)
+	threshold_value = threshold_otsu(image)
 
 	############
 
@@ -124,7 +124,7 @@ def percentage_area(image):
 	non_zero_pixels = np.count_nonzero(non_nan_image)
 
 	image_size = image.shape[0] * image.shape[1]
-	percentage_area = np.round(100 * non_zero_pixels / image_size, 2)
+	percentage_area = np.round(100 * non_zero_pixels / image_size, 1)
 
 	return percentage_area
 
