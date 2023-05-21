@@ -589,7 +589,7 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 
 	###########################
 
-	im = axes["A"].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'binary')
+	im = axes["A"].imshow(raw_image, vmin = 0, vmax = 255, cmap = 'gray')
 	axes["A"].set_title('Uploaded Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 	axes["A"].set_xticks([])
 	axes["A"].set_yticks([])
@@ -604,7 +604,7 @@ def make_mosiac_plot(raw_image, binarized_image, filtered_image, Local_Density, 
 
 	###########################
 
-	im = axes["B"].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'binary')
+	im = axes["B"].imshow(filtered_image, vmin = 0, vmax = 255, cmap = 'gray')
 	axes["B"].set_title('Filtered Image', pad = PAD, fontsize = FONTSIZE_TITLE)
 	axes["B"].set_xticks([])
 	axes["B"].set_yticks([])
