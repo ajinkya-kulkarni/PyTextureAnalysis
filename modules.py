@@ -348,6 +348,60 @@ def make_orientation(input_image, Jxx, Jxy, Jyy, threshold_value):
 
 ########################################################################################
 
+# Define a function to compute the circular variance for each pixel in a 2D array
+def circular_variance_array(input_array):
+	"""
+	Computes the circular variance for each pixel in a 2D array using a 3x3 window.
+
+      	Parameters:
+	input_array (numpy.ndarray): 2D array of angles in degrees
+
+	Returns:
+	numpy.ndarray: 2D array of circular variance values
+	"""
+    
+	# Convert the input array of angles from degrees to radians to use NumPy trigonometric functions 
+	input_array_rad = np.deg2rad(input_array)
+    
+	# Define the size of the window over which variance will be computed
+	kernel_size = 3
+	padding = kernel_size // 2
+    
+	# Pad the input array to handle edge pixels when extracting the window
+	padded_array = np.pad(input_array_rad, ((padding, padding), (padding, padding)), mode='constant')
+    
+	# Initialize an array to store the circular variance values
+	output_array = np.zeros_like(input_array, dtype=float)
+    
+	# Iterate over each pixel in the input array
+	for i in range(input_array.shape[0]):
+		for j in range(input_array.shape[1]):
+            	# Extract a 3x3 window around the current pixel
+            	window = padded_array[i:i+kernel_size, j:j+kernel_size]
+            	try:
+               		# Compute the circular variance for the flattened window
+                	variance = circular_variance(window.ravel())
+                	# Store the calculated variance in the corresponding location in the output array
+                	output_array[i, j] = variance
+            	except ValueError:
+               		# If the window contains no valid values, set the variance to NaN
+                	output_array[i, j] = np.nan
+            
+	return output_array
+
+# Compute the circular variance for each pixel in the orientation 2D array
+variance_array = circular_variance_array(Image_Orientation)
+
+# Plot the heatmap
+plt.figure(figuresize=(10,8))
+plt.imshow(variance_array, cmap='inferno', interpolation='none')
+plt.colorbar(label="Circular Variance")
+plt.title("Circular Variance Heatmap")
+plt.axis("off")
+plt.show()
+
+########################################################################################
+
 def generate_padded_image(img, chunk_size):
 	"""
 	Generate a padded image that is square and a multiple of the chunk size.
