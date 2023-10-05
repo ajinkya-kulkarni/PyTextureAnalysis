@@ -173,7 +173,7 @@ def circular_variance(angles):
 	length = angles.size
 	# check if the input has at least one valid value 
 	if length == 0:
-		raise ValueError("Input must contain at least one valid value")
+		return np.nan 
 	# calculate circular variance
 	S = np.sum(np.sin(angles))
 	C = np.sum(np.cos(angles))
@@ -345,6 +345,49 @@ def make_orientation(input_image, Jxx, Jxy, Jyy, threshold_value):
 	Orientation[input_image < threshold_value] = np.nan
 
 	return Orientation
+
+########################################################################################
+
+# Define a function to compute the circular variance for each pixel in a 2D array
+def circular_variance_array(input_array):
+	"""
+	Computes the circular variance for each pixel in a 2D array using a 3x3 window.
+
+      	Parameters:
+	input_array (numpy.ndarray): 2D array of angles in degrees
+
+	Returns:
+	numpy.ndarray: 2D array of circular variance values
+	"""
+    
+	# Convert the input array of angles from degrees to radians to use NumPy trigonometric functions 
+	input_array_rad = np.deg2rad(input_array)
+    
+	# Define the size of the window over which variance will be computed
+	kernel_size = 3
+	padding = kernel_size // 2
+    
+	# Pad the input array to handle edge pixels when extracting the window
+	padded_array = np.pad(input_array_rad, ((padding, padding), (padding, padding)), mode='constant')
+    
+	# Initialize an array to store the circular variance values
+	output_array = np.zeros_like(input_array, dtype=float)
+    
+	# Iterate over each pixel in the input array
+	for i in range(input_array.shape[0]):
+		for j in range(input_array.shape[1]):
+            	# Extract a 3x3 window around the current pixel
+            	window = padded_array[i:i+kernel_size, j:j+kernel_size]
+            	try:
+               		# Compute the circular variance for the flattened window
+                	variance = circular_variance(window.flatten())
+                	# Store the calculated variance in the corresponding location in the output array
+                	output_array[i, j] = variance
+            	except ValueError:
+               		# If the window contains no valid values, set the variance to NaN
+                	output_array[i, j] = np.nan
+
+	return output_array
 
 ########################################################################################
 
