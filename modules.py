@@ -386,7 +386,7 @@ def circular_variance_array(input_array):
             	except ValueError:
                		# If the window contains no valid values, set the variance to NaN
                 	output_array[i, j] = np.nan
-            
+
 	return output_array
 
 ########################################################################################
