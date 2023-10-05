@@ -173,7 +173,7 @@ def circular_variance(angles):
 	length = angles.size
 	# check if the input has at least one valid value 
 	if length == 0:
-		raise ValueError("Input must contain at least one valid value")
+		return np.nan 
 	# calculate circular variance
 	S = np.sum(np.sin(angles))
 	C = np.sum(np.cos(angles))
@@ -380,7 +380,7 @@ def circular_variance_array(input_array):
             	window = padded_array[i:i+kernel_size, j:j+kernel_size]
             	try:
                		# Compute the circular variance for the flattened window
-                	variance = circular_variance(window.ravel())
+                	variance = circular_variance(window.flatten())
                 	# Store the calculated variance in the corresponding location in the output array
                 	output_array[i, j] = variance
             	except ValueError:
@@ -388,17 +388,6 @@ def circular_variance_array(input_array):
                 	output_array[i, j] = np.nan
             
 	return output_array
-
-# Compute the circular variance for each pixel in the orientation 2D array
-variance_array = circular_variance_array(Image_Orientation)
-
-# Plot the heatmap
-plt.figure(figuresize=(10,8))
-plt.imshow(variance_array, cmap='inferno', interpolation='none')
-plt.colorbar(label="Circular Variance")
-plt.title("Circular Variance Heatmap")
-plt.axis("off")
-plt.show()
 
 ########################################################################################
 
