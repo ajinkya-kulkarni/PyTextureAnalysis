@@ -38,6 +38,7 @@ from scipy import signal
 from skimage.filters import threshold_mean, gaussian, threshold_otsu
 from skimage.morphology import disk
 from skimage.filters import rank
+from scipy.ndimage import generic_filter
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -174,13 +175,14 @@ def circular_variance(angles):
 	# check if the input has at least one valid value 
 	if length == 0:
 		return np.nan 
-	# calculate circular variance
-	S = np.sum(np.sin(angles))
-	C = np.sum(np.cos(angles))
-	R = np.sqrt(S**2 + C**2)
-	R_avg = R/length
-	V = 1 - R_avg
-	return V
+	else
+		# calculate circular variance
+		S = np.sum(np.sin(angles))
+		C = np.sum(np.cos(angles))
+		R = np.sqrt(S**2 + C**2)
+		R_avg = R/length
+		V = 1 - R_avg
+		return V
 
 ########################################################################################
 
@@ -349,45 +351,33 @@ def make_orientation(input_image, Jxx, Jxy, Jyy, threshold_value):
 ########################################################################################
 
 # Define a function to compute the circular variance for each pixel in a 2D array
-def circular_variance_array(input_array):
-	"""
-	Computes the circular variance for each pixel in a 2D array using a 3x3 window.
 
-      	Parameters:
-	input_array (numpy.ndarray): 2D array of angles in degrees
+def circular_variance_array(input_array, kernel_size, padding_mode='nearest'):
+	"""
+	Computes the circular variance for each pixel in a 2D array using a moving window of the given size.
+
+	Parameters:
+		input_array (numpy.ndarray): 2D array of angles in degrees.
+		kernel_size (int): Size of the kernel to compute variance.
+		padding_mode (str): Padding method. Can be 'constant', 'nearest', 'reflect', etc.
 
 	Returns:
-	numpy.ndarray: 2D array of circular variance values
+		numpy.ndarray: 2D array of circular variance values, same shape as input_array.
 	"""
     
-	# Convert the input array of angles from degrees to radians to use NumPy trigonometric functions 
 	input_array_rad = np.deg2rad(input_array)
     
-	# Define the size of the window over which variance will be computed
-	kernel_size = 3
-	padding = kernel_size // 2
-    
-	# Pad the input array to handle edge pixels when extracting the window
-	padded_array = np.pad(input_array_rad, ((padding, padding), (padding, padding)), mode='constant')
-    
-	# Initialize an array to store the circular variance values
-	output_array = np.zeros_like(input_array, dtype=float)
-    
-	# Iterate over each pixel in the input array
-	for i in range(input_array.shape[0]):
-		for j in range(input_array.shape[1]):
-            	# Extract a 3x3 window around the current pixel
-            	window = padded_array[i:i+kernel_size, j:j+kernel_size]
-            	try:
-               		# Compute the circular variance for the flattened window
-                	variance = circular_variance(window.flatten())
-                	# Store the calculated variance in the corresponding location in the output array
-                	output_array[i, j] = variance
-            	except ValueError:
-               		# If the window contains no valid values, set the variance to NaN
-                	output_array[i, j] = np.nan
+	# Apply the generic_filter with the circular_variance function
+	output_array = generic_filter(input_array_rad, circular_variance, size=kernel_size, mode=padding_mode)
 
-	return output_array
+	# Normalize the output_array between 0 and 1
+	min_val = np.nanmin(output_array)
+	max_val = np.nanmax(output_array)
+
+	if max_val != min_val:  # Ensure we don't divide by zero
+		output_array = (output_array - min_val) / (max_val - min_val)
+    
+	return output_array	
 
 ########################################################################################
 
