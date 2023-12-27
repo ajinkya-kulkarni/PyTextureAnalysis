@@ -17,7 +17,7 @@ PyTextureAnalysis is a Python package that contains tools to analyze the texture
 
 ## Demo
 
-A web application developed using `Streamlit` is available at https://textureinformation-package.streamlit.app/. Check out the `Example.ipynb` file to learn how to use the package to extract and visualize local fiber orientation and organization.
+A web application developed using `Streamlit` is available at https://textureinformation-package.streamlit.app/. Also check out the `Example.ipynb` file to learn how to use the package to extract and visualize local fiber orientation and organization.
 
 ## App Overview
 
