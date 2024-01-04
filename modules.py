@@ -175,7 +175,7 @@ def circular_variance(angles):
 	# check if the input has at least one valid value 
 	if length == 0:
 		return np.nan 
-	else
+	else:
 		# calculate circular variance
 		S = np.sum(np.sin(angles))
 		C = np.sum(np.cos(angles))
